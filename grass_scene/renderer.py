@@ -5,7 +5,7 @@ This code runs as to set up the script to run the VR in ratcave
 import pyglet
 import pyglet.gl as gl
 import ratcave as rc
-from ratcave.resources import cube_shader, default_shader
+from ratcave.resources import cube_shader, default_shader, obj_primitives
 from natnetclient import NatClient
 import itertools
 from utils import get_screen, load_textured_mesh, remove_image_lines_from_mtl
@@ -37,8 +37,12 @@ def main():
 
     ## Make Virtual Scene ##
     rat_camera = rc.Camera(projection=rc.PerspectiveProjection(aspect=1, fov_y=90, z_near=.001, z_far=10), position=rat_rb.position)  # settign the camera to be on top of the rats head
+    cylinder = arena_reader.get_mesh("Cylinder")
+    cylinder.parent = arena
+    cylinder.uniforms['diffuse'] = (0., 1., 0.)
+    cylinder.uniforms['flat_shading'] = True
 
-    meshes = []
+    meshes = [cylinder]
     virtual_scene = rc.Scene(meshes=meshes, light=light, camera=rat_camera, bgColor=(0, 0, 255))  # seetign aset virtual scene to be projected as the mesh of the arena
     virtual_scene.gl_states.states = virtual_scene.gl_states.states[:-1]
 
