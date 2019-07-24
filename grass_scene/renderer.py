@@ -62,8 +62,6 @@ def main():
     framebuffer = rc.FBO(texture=cube_texture) ## creating a fr`amebuffer as the texture - in tut 4 it was the blue screen
     arena.textures.append(cube_texture)
 
-    label = pyglet.text.Label(text='', font_size=50)
-
     # updating the posiotn of the arena in xyz and also in rotational perspective
     def update(dt):
         """main update function: put any movement or tracking steps in here, because it will be run constantly!"""
@@ -76,8 +74,6 @@ def main():
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
-        print(distance)
-        label.text = str(distance)
 
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
@@ -97,5 +93,6 @@ def main():
             # why is it here 39? e
             with projector, light:
                 arena.draw()
-        label.draw()
+
+
     pyglet.app.run()
