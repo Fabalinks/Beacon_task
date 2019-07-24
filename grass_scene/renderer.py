@@ -8,15 +8,18 @@ import ratcave as rc
 from ratcave.resources import cube_shader, default_shader
 from natnetclient import NatClient
 from utils import get_screen, remove_image_lines_from_mtl
+import numpy as np
+from numpy import linalg
 
 # Experiment parameters:
 flat_shading_on = True
-background_color = (1., 1., 0.)
+background_color = (1., 0., 0.)
 cylinder_color = (0., 1., 1.)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 
 # Parameters never to change:
 environment_color_filter = 1., 1., 1.
+
 
 def main():
     # getting positions of rigid bodies in real time
@@ -49,6 +52,7 @@ def main():
     cylinder.uniforms['diffuse'] = cylinder_color
     cylinder.uniforms['flat_shading'] = flat_shading_on
 
+
     meshes = [cylinder]
     virtual_scene = rc.Scene(meshes=meshes, light=light, camera=rat_camera, bgColor= background_color)  # seetign aset virtual scene to be projected as the mesh of the arena
     virtual_scene.gl_states.states = virtual_scene.gl_states.states[:-1]
@@ -58,6 +62,8 @@ def main():
     framebuffer = rc.FBO(texture=cube_texture) ## creating a fr`amebuffer as the texture - in tut 4 it was the blue screen
     arena.textures.append(cube_texture)
 
+    label = pyglet.text.Label(text='', font_size=50)
+
     # updating the posiotn of the arena in xyz and also in rotational perspective
     def update(dt):
         """main update function: put any movement or tracking steps in here, because it will be run constantly!"""
@@ -65,6 +71,13 @@ def main():
         arena.uniforms['playerPos'] = rat_rb.position
         arena.position, arena.rotation.xyzw = arena_rb.position, arena_rb.quaternion
         arena.position.y -= .02
+
+        rat_position = rat_rb.position.x, rat_rb.position.z
+        cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
+        diff_position = np.array(rat_position) - np.array(cylinder_position)
+        distance = linalg.norm(diff_position)
+        print(distance)
+        label.text = str(distance)
 
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
@@ -78,10 +91,11 @@ def main():
         # Render real scene onto screen
         gl.glColorMask(True, True, True, True)
         window.clear()
+
         with cube_shader:  # using cube shader to create the actuall 6 sided virtual cube which gets upated with position and angle of the camera/viewer
             rc.clear_color(255, 0, 0)
             # why is it here 39? e
             with projector, light:
                 arena.draw()
-
+        label.draw()
     pyglet.app.run()
