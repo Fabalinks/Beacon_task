@@ -10,12 +10,16 @@ from natnetclient import NatClient
 from utils import get_screen, remove_image_lines_from_mtl
 import numpy as np
 from numpy import linalg
+import serial
+import time
+
 
 # Experiment parameters:
 flat_shading_on = True
 background_color = (1., 0., 0.)
 cylinder_color = (0., 1., 1.)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
+feeder_port = 'COM12'
 
 # Parameters never to change:
 environment_color_filter = 1., 1., 1.
@@ -26,6 +30,9 @@ def main():
     client = NatClient()
     arena_rb = client.rigid_bodies['Arena']
     rat_rb = client.rigid_bodies['Rat']
+
+    # connect to feeder
+    feeder = serial.Serial(feeder_port, 9600)
 
     window = pyglet.window.Window(resizable=True, fullscreen=True, screen=get_screen(1))
 
@@ -75,7 +82,8 @@ def main():
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
         if distance < .05:
-            cylinder.visible = False
+            feeder.write('f')
+            time.sleep(.1)
 
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
