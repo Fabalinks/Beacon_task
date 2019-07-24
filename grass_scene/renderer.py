@@ -48,17 +48,10 @@ def main():
     framebuffer = rc.FBO(texture=cube_texture) ## creating a fr`amebuffer as the texture - in tut 4 it was the blue screen
     arena.textures.append(cube_texture)
 
-    # Stereo
-    vr_camgroup = rc.StereoCameraGroup(distance=.05)
-    vr_camgroup.rotation = vr_camgroup.rotation.to_quaternion()
-
-
-
 
     # updating the posiotn of the arena in xyz and also in rotational perspective
     def update(dt):
         """main update function: put any movement or tracking steps in here, because it will be run constantly!"""
-        # vr_camgroup.position, vr_camgroup.rotation.xyzw = rat_rb.position, rat_rb.quaternion  # setting the actual osiont of the rat camera to vbe of the rat position
         virtual_scene.camera.position.xyz = rat_rb.position
         arena.uniforms['playerPos'] = rat_rb.position
         arena.position, arena.rotation.xyzw = arena_rb.position, arena_rb.quaternion
@@ -73,10 +66,6 @@ def main():
         ## Render virtual scene onto cube texture
         with framebuffer:
             with cube_shader:
-
-                # for mask, camside in zip([(True, False, False, True), (False, True, True, True)], [vr_camgroup.left, vr_camgroup.right]):
-                #     gl.glColorMask(*mask)
-                #     virtual_scene.camera.position.xyz = camside.position_global
                 virtual_scene.draw360_to_texture(cube_texture)
 
         ## Render real scene onto screen
