@@ -3,6 +3,4 @@
 *.csv
 *.avi
 *.blend1
-*.obj
-*.mtl
 *.pyc

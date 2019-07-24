@@ -22,8 +22,8 @@ def main():
 
 
     # Load Arena
-    remove_image_lines_from_mtl('assets/3D/grass_scene.mtl')
-    arena_filename = 'assets/3D/grass_scene.obj'# we are taking an arena which has been opened in blender and rendered to 3D after scanning it does not have flipped normals
+    remove_image_lines_from_mtl('assets/3D/beacon_scene.mtl')
+    arena_filename = 'assets/3D/beacon_scene.obj'# we are taking an arena which has been opened in blender and rendered to 3D after scanning it does not have flipped normals
     arena_reader = rc.WavefrontReader(arena_filename)  # loading the mesh of the arena thought a wavefrontreader
     arena = arena_reader.get_mesh("Arena", position=arena_rb.position)  # making the wafrotn into mesh so we can extrude texture ont top of it.
     arena.uniforms['diffuse'] = 1., 1., 1.  # addign a white diffuse material to the arena
@@ -36,25 +36,9 @@ def main():
     light = rc.Light(position=projector.position)
 
     ## Make Virtual Scene ##
-    fields = []
-    for x, z in itertools.product([-.8, 0, .8], [-1.6, 0, 1.6]):
-            field = load_textured_mesh(arena_reader, 'grass', 'grass.png')
-            field.position.x += x
-            field.position.z += z
-            fields.append(field)
-
-    ground = load_textured_mesh(arena_reader, 'Ground', 'dirt.png')
-    sky = load_textured_mesh(arena_reader, 'Sky', 'sky.png')
-    snake = load_textured_mesh(arena_reader, 'Snake', 'snake.png')
-
     rat_camera = rc.Camera(projection=rc.PerspectiveProjection(aspect=1, fov_y=90, z_near=.001, z_far=10), position=rat_rb.position)  # settign the camera to be on top of the rats head
 
-    meshes = [ground, sky, snake] + fields
-    for mesh in meshes:
-        mesh.uniforms['diffuse'] = 1., 1., 1.
-        mesh.uniforms['flat_shading'] = False
-        mesh.parent = arena
-
+    meshes = []
     virtual_scene = rc.Scene(meshes=meshes, light=light, camera=rat_camera, bgColor=(0, 0, 255))  # seetign aset virtual scene to be projected as the mesh of the arena
     virtual_scene.gl_states.states = virtual_scene.gl_states.states[:-1]
 
