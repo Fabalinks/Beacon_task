@@ -74,6 +74,8 @@ def main():
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
+        if distance < .05:
+            cylinder.visible = False
 
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
