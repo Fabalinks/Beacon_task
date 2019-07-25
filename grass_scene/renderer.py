@@ -22,8 +22,15 @@ arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and 
 feeder_port = 'COM12'
 actuator_port = 'COM7'
 
+
 # Parameters never to change:
 environment_color_filter = 1., 1., 1.
+
+# arena floor max size - random distribution
+x_diff = (0.37 + 0.22)
+x = np.random.random() * x_diff - 0.37
+z_diff = (0.59 + 1.02)
+z = np.random.random() * z_diff - 0.59
 
 
 def main():
@@ -73,6 +80,10 @@ def main():
     framebuffer = rc.FBO(texture=cube_texture) ## creating a fr`amebuffer as the texture - in tut 4 it was the blue screen
     arena.textures.append(cube_texture)
 
+    # last arena move
+    arena.last_move_action = 'b'
+    arena.feed_counts = 0
+
     # updating the posiotn of the arena in xyz and also in rotational perspective
     def update(dt):
         """main update function: put any movement or tracking steps in here, because it will be run constantly!"""
@@ -85,19 +96,21 @@ def main():
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
+
         if distance < .05:
             feeder.write('f')
-            actuator.write('f')
+            arena.feed_counts += 1
+            print("Feed counts: %s" % arena.feed_counts)
+
+            arena.last_move_action = 'b' if arena.last_move_action == 'f' else 'f'
+            actuator.write(arena.last_move_action)
+
             cylinder.visible = False
             time.sleep(.5)
-            cylinder.position.xz = np.random.random(size=2)
+            z = np.random.random() * z_diff - 0.59
+            x = np.random.random() * x_diff - 0.37
+            cylinder.position.xz = x, z
             cylinder.visible = True
-
-            # x_diff = (0.37 + 0.22)
-            # x = np.random.random() * x_diff - 0.37
-            # y_diff = (0.59 + 1.02)
-            # y = np.random.random() * y_diff - 0.59
-
 
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
