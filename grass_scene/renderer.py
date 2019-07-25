@@ -20,6 +20,7 @@ background_color = (1., 0., 0.)
 cylinder_color = (0., 1., 1.)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
+actuator_port = 'COM7'
 
 # Parameters never to change:
 environment_color_filter = 1., 1., 1.
@@ -33,6 +34,9 @@ def main():
 
     # connect to feeder
     feeder = serial.Serial(feeder_port, 9600)
+
+    # connect to actuators
+    actuator = serial.Serial(actuator_port, 9600)
 
     window = pyglet.window.Window(resizable=True, fullscreen=True, screen=get_screen(1))
 
@@ -83,7 +87,17 @@ def main():
         distance = linalg.norm(diff_position)
         if distance < .05:
             feeder.write('f')
-            time.sleep(.1)
+            actuator.write('f')
+            cylinder.visible = False
+            time.sleep(.5)
+            cylinder.position.xz = np.random.random(size=2)
+            cylinder.visible = True
+
+            # x_diff = (0.37 + 0.22)
+            # x = np.random.random() * x_diff - 0.37
+            # y_diff = (0.59 + 1.02)
+            # y = np.random.random() * y_diff - 0.59
+
 
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
