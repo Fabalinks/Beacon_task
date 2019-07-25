@@ -16,7 +16,7 @@ import time
 
 # Experiment parameters:
 flat_shading_on = True
-background_color = (1., 0., 0.)
+background_color = (0., 0., 0.)
 cylinder_color = (0., 1., 1.)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
@@ -110,7 +110,7 @@ def main():
             z = np.random.random() * z_diff - 0.59
             x = np.random.random() * x_diff - 0.37
             cylinder.position.xz = x, z
-            cylinder.visible = True
+            cylinder.visible = False
 
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
