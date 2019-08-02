@@ -16,8 +16,8 @@ import time
 
 # Experiment parameters:
 flat_shading_on = True
-background_color = (0., 0., 0.)
-cylinder_color = (0., 1., 1.)
+background_color = (1., 1., 1.)
+cylinder_color = (0., 0., 0.)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
 actuator_port = 'COM7'
@@ -84,7 +84,9 @@ def main():
     arena.last_move_action = 'b'
     arena.feed_counts = 0
 
-    # updating the posiotn of the arena in xyz and also in rotational perspective
+    # updating the position of the arena in xyz and also in rotational perspective
+
+
     def update(dt):
         """main update function: put any movement or tracking steps in here, because it will be run constantly!"""
         virtual_scene.camera.position.xyz = rat_rb.position
@@ -97,20 +99,20 @@ def main():
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
 
+        #TODO: make it so that the cylinder dissapears, for 10 sec and then reapears. They have to stay there 2 seconds at first
+
         if distance < .05:
+            cylinder.visible = False
             feeder.write('f')
             arena.feed_counts += 1
             print("Feed counts: %s" % arena.feed_counts)
-
-            arena.last_move_action = 'b' if arena.last_move_action == 'f' else 'f'
-            actuator.write(arena.last_move_action)
-
-            cylinder.visible = False
-            time.sleep(.5)
             z = np.random.random() * z_diff - 0.59
             x = np.random.random() * x_diff - 0.37
             cylinder.position.xz = x, z
-            cylinder.visible = False
+            cylinder.visible = True
+            time.sleep(3)
+
+
 
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
