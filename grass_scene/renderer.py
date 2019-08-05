@@ -10,6 +10,7 @@ from natnetclient import NatClient
 from utils import get_screen, remove_image_lines_from_mtl
 import numpy as np
 from numpy import linalg
+from threading import Timer
 import serial
 import time
 
@@ -21,7 +22,8 @@ cylinder_color = (0., 0., 0.)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
 actuator_port = 'COM7'
-
+exposure_time = 1.0
+time_in_cylinder = 1
 
 # Parameters never to change:
 environment_color_filter = 1., 1., 1.
@@ -83,9 +85,15 @@ def main():
     # last arena move
     arena.last_move_action = 'b'
     arena.feed_counts = 0
+    arena.in_hotspot_since = 0
 
     # updating the position of the arena in xyz and also in rotational perspective
+    def make_cylinder_visible():
+        cylinder.visible = True
 
+    def in_hotspot():
+        if not arena.in_hotspot_since:
+            arena.in_hotspot_since = time.time()
 
     def update(dt):
         """main update function: put any movement or tracking steps in here, because it will be run constantly!"""
@@ -99,20 +107,26 @@ def main():
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
 
-        #TODO: make it so that the cylinder dissapears, for 10 sec and then reapears. They have to stay there 2 seconds at first
 
         if distance < .05:
-            cylinder.visible = False
-            feeder.write('f')
-            arena.feed_counts += 1
-            print("Feed counts: %s" % arena.feed_counts)
-            z = np.random.random() * z_diff - 0.59
-            x = np.random.random() * x_diff - 0.37
-            cylinder.position.xz = x, z
-            cylinder.visible = True
-            time.sleep(3)
+            in_hotspot()
 
+            if time.time() - arena.in_hotspot_since > exposure_time:
+                cylinder.visible = False
+                feeder.write('f')
+                arena.feed_counts += 1
+                print("Feed counts: %s" % arena.feed_counts)
+                z = np.random.random() * z_diff - 0.59
+                x = np.random.random() * x_diff - 0.37
+                cylinder.position.xz = x, z
+                #cylinder.visible = True
+                #time.sleep(3)
 
+                t1 = Timer(time_in_cylinder, make_cylinder_visible)
+                t1.start()
+
+        else:
+            arena.in_hotspot_since = 0
 
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
