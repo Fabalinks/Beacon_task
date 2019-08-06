@@ -16,14 +16,15 @@ import time
 
 
 # Experiment parameters:
+fade=.0 # 0-1 numbers only
 flat_shading_on = True
 background_color = (1., 1., 1.)
-cylinder_color = (0., 0., 0.)
+cylinder_color = (0.+fade, 0.+fade, 0.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 1.0
-time_in_cylinder = 1
+time_in_cylinder = 1.0
 
 # Parameters never to change:
 environment_color_filter = 1., 1., 1.
@@ -86,10 +87,12 @@ def main():
     arena.last_move_action = 'b'
     arena.feed_counts = 0
     arena.in_hotspot_since = 0
+    arena.in_refractory = False
 
     # updating the position of the arena in xyz and also in rotational perspective
     def make_cylinder_visible():
         cylinder.visible = True
+        arena.in_refractory = False
 
     def in_hotspot():
         if not arena.in_hotspot_since:
@@ -107,23 +110,22 @@ def main():
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
 
-
-        if distance < .05:
+        if distance < .05 and not arena.in_refractory:
             in_hotspot()
 
-            if time.time() - arena.in_hotspot_since > exposure_time:
+            if time.time() - arena.in_hotspot_since > time_in_cylinder:
                 cylinder.visible = False
                 feeder.write('f')
                 arena.feed_counts += 1
                 print("Feed counts: %s" % arena.feed_counts)
-                z = np.random.random() * z_diff - 0.59
-                x = np.random.random() * x_diff - 0.37
-                cylinder.position.xz = x, z
-                #cylinder.visible = True
-                #time.sleep(3)
+                #z = np.random.random() * z_diff - 0.59
+                #x = np.random.random() * x_diff - 0.37
+                #cylinder.position.xz = x, z
 
-                t1 = Timer(time_in_cylinder, make_cylinder_visible)
+                t1 = Timer(exposure_time, make_cylinder_visible)
                 t1.start()
+
+                arena.in_refractory = True
 
         else:
             arena.in_hotspot_since = 0
