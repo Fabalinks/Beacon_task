@@ -118,9 +118,9 @@ def main():
                 feeder.write('f')
                 arena.feed_counts += 1
                 print("Feed counts: %s" % arena.feed_counts)
-                #z = np.random.random() * z_diff - 0.59
-                #x = np.random.random() * x_diff - 0.37
-                #cylinder.position.xz = x, z
+                z = np.random.random() * z_diff - 0.49
+                x = np.random.random() * x_diff - 0.27
+                cylinder.position.xz = x, z
 
                 t1 = Timer(exposure_time, make_cylinder_visible)
                 t1.start()
