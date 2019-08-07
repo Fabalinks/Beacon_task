@@ -25,6 +25,7 @@ feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 1.0
 time_in_cylinder = 1.0
+circle = .1
 
 # Parameters never to change:
 environment_color_filter = 1., 1., 1.
@@ -110,7 +111,7 @@ def main():
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
 
-        if distance < .05 and not arena.in_refractory:
+        if distance < circle and not arena.in_refractory:
             in_hotspot()
 
             if time.time() - arena.in_hotspot_since > time_in_cylinder:
@@ -118,8 +119,8 @@ def main():
                 feeder.write('f')
                 arena.feed_counts += 1
                 print("Feed counts: %s" % arena.feed_counts)
-                z = np.random.random() * z_diff - 0.49
-                x = np.random.random() * x_diff - 0.27
+                z = np.random.random() * z_diff - 0.59
+                x = np.random.random() * x_diff - 0.37
                 cylinder.position.xz = x, z
 
                 t1 = Timer(exposure_time, make_cylinder_visible)
