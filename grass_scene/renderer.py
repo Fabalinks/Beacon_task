@@ -23,8 +23,8 @@ cylinder_color = (0.+fade, 0.+fade, 0.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
 actuator_port = 'COM7'
-exposure_time = 1.0
-time_in_cylinder = 1.0
+exposure_time = 2.0
+time_in_cylinder = .75
 circle = .1
 
 # Parameters never to change:
@@ -110,6 +110,8 @@ def main():
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
+        print ("position x: %s" %cylinder_position.x)
+        print ("position y: %s" %cylinder_position.z)
 
         if distance < circle and not arena.in_refractory:
             in_hotspot()
