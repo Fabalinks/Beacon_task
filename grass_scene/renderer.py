@@ -110,8 +110,8 @@ def main():
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
-        print ("position x: %s" %cylinder_position.x)
-        print ("position y: %s" %cylinder_position.z)
+        print ("cylinder x: %s" %cylinder.position_global[0])
+        print ("cylinder y: %s" %cylinder.position_global[2])
 
         if distance < circle and not arena.in_refractory:
             in_hotspot()
@@ -121,8 +121,8 @@ def main():
                 feeder.write('f')
                 arena.feed_counts += 1
                 print("Feed counts: %s" % arena.feed_counts)
-                z = np.random.random() * z_diff - 0.59
-                x = np.random.random() * x_diff - 0.37
+                z = np.random.random() * z_diff - 0.19
+                x = np.random.random() * x_diff - 0.17
                 cylinder.position.xz = x, z
 
                 t1 = Timer(exposure_time, make_cylinder_visible)
@@ -132,7 +132,8 @@ def main():
 
         else:
             arena.in_hotspot_since = 0
-
+        print ("position x: %s" %cylinder.position_global[0])
+        print ("position y: %s" %cylinder.position_global[2])
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
     @window.event
