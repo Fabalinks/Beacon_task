@@ -132,8 +132,7 @@ def main():
 
         else:
             arena.in_hotspot_since = 0
-        print ("position x: %s" %cylinder.position_global[0])
-        print ("position y: %s" %cylinder.position_global[2])
+
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
     @window.event
