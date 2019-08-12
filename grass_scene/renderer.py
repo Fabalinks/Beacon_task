@@ -16,15 +16,15 @@ import time
 
 
 # Experiment parameters:
-fade=.0 # 0-1 numbers only
+fade=.25 # 0-1 numbers only
 flat_shading_on = True
 background_color = (1., 1., 1.)
 cylinder_color = (0.+fade, 0.+fade, 0.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
 actuator_port = 'COM7'
-exposure_time = 2.0
-time_in_cylinder = .75
+exposure_time = 7.0
+time_in_cylinder = 1
 circle = .1
 
 # Parameters never to change:
@@ -73,6 +73,8 @@ def main():
     cylinder.parent = arena
     cylinder.uniforms['diffuse'] = cylinder_color
     cylinder.uniforms['flat_shading'] = flat_shading_on
+    cylinder.position.y = -.01
+
 
 
     meshes = [cylinder]
@@ -110,8 +112,8 @@ def main():
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
-        print ("cylinder x: %s" %cylinder.position_global[0])
-        print ("cylinder y: %s" %cylinder.position_global[2])
+        #print ("position x: %s" %cylinder.position_global[1])
+        #print ("position y: %s" %cylinder.position_global[2])
 
         if distance < circle and not arena.in_refractory:
             in_hotspot()
@@ -121,9 +123,10 @@ def main():
                 feeder.write('f')
                 arena.feed_counts += 1
                 print("Feed counts: %s" % arena.feed_counts)
-                z = np.random.random() * z_diff - 0.19
-                x = np.random.random() * x_diff - 0.17
-                cylinder.position.xz = x, z
+                #z = np.random.random() * z_diff - 0.59
+                #x = np.random.random() * x_diff - 0.37
+                #cylinder.position.xz = x, z
+                #cylinder.position.y = -.1
 
                 t1 = Timer(exposure_time, make_cylinder_visible)
                 t1.start()
