@@ -13,19 +13,19 @@ from numpy import linalg
 from threading import Timer
 import serial
 import time
-
+from pyglet.window import key
 
 # Experiment parameters:
-fade=.25 # 0-1 numbers only
+fade=1 # 0-1 numbers only
 flat_shading_on = True
-background_color = (1., 1., 1.)
+background_color = (0., 0., 0.)
 cylinder_color = (0.+fade, 0.+fade, 0.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 7.0
 time_in_cylinder = 1
-circle = .1
+circle = .15
 
 # Parameters never to change:
 environment_color_filter = 1., 1., 1.
@@ -92,6 +92,9 @@ def main():
     arena.in_hotspot_since = 0
     arena.in_refractory = False
 
+    keys = key.KeyStateHandler()
+    window.push_handlers(keys)
+
     # updating the position of the arena in xyz and also in rotational perspective
     def make_cylinder_visible():
         cylinder.visible = True
@@ -135,6 +138,20 @@ def main():
 
         else:
             arena.in_hotspot_since = 0
+
+        if keys[key.LEFT]:
+            cylinder.position.x -=.2*dt
+        if keys[key.RIGHT]:
+            cylinder.position.x +=.2*dt
+        if keys[key.UP]:
+            cylinder.position.z -=.2*dt
+        if keys[key.DOWN]:
+            cylinder.position.z +=.2*dt
+        if keys[key.A]:
+            cylinder.rotation.x +=80 *dt
+        if keys[key.D]:
+            cylinder.rotation.z +=80 *dt
+
 
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
