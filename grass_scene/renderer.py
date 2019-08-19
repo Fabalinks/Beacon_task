@@ -16,16 +16,18 @@ import time
 from pyglet.window import key
 
 # Experiment parameters:
-fade=1 # 0-1 numbers only
+fade=.25# 0-1 numbers only
 flat_shading_on = True
-background_color = (0., 0., 0.)
+background_color = (1., 1., 1.)
 cylinder_color = (0.+fade, 0.+fade, 0.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
 actuator_port = 'COM7'
-exposure_time = 7.0
+exposure_time = 3.0
 time_in_cylinder = 1
 circle = .15
+rotation = 80
+speed = .25
 
 # Parameters never to change:
 environment_color_filter = 1., 1., 1.
@@ -74,8 +76,8 @@ def main():
     cylinder.uniforms['diffuse'] = cylinder_color
     cylinder.uniforms['flat_shading'] = flat_shading_on
     cylinder.position.y = -.01
-
-
+    cylinder.position.x =-0.15
+    cylinder.position.z = -.0
 
     meshes = [cylinder]
     virtual_scene = rc.Scene(meshes=meshes, light=light, camera=rat_camera, bgColor= background_color)  # seetign aset virtual scene to be projected as the mesh of the arena
@@ -115,7 +117,7 @@ def main():
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
-        #print ("position x: %s" %cylinder.position_global[1])
+        #print ("position x: %s" %cylinder.position_global[0])
         #print ("position y: %s" %cylinder.position_global[2])
 
         if distance < circle and not arena.in_refractory:
@@ -140,17 +142,17 @@ def main():
             arena.in_hotspot_since = 0
 
         if keys[key.LEFT]:
-            cylinder.position.x -=.2*dt
+            cylinder.position.x -= speed*dt
         if keys[key.RIGHT]:
-            cylinder.position.x +=.2*dt
+            cylinder.position.x += speed*dt
         if keys[key.UP]:
-            cylinder.position.z -=.2*dt
+            cylinder.position.z -= speed*dt
         if keys[key.DOWN]:
-            cylinder.position.z +=.2*dt
+            cylinder.position.z += speed*dt
         if keys[key.A]:
-            cylinder.rotation.x +=80 *dt
+            cylinder.rotation.x +=rotation *dt
         if keys[key.D]:
-            cylinder.rotation.z +=80 *dt
+            cylinder.rotation.z +=rotation *dt
 
 
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
