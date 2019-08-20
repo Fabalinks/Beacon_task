@@ -16,7 +16,7 @@ import time
 from pyglet.window import key
 
 # Experiment parameters:
-fade=.25# 0-1 numbers only
+fade=.25 # 0-1 numbers only
 flat_shading_on = True
 background_color = (1., 1., 1.)
 cylinder_color = (0.+fade, 0.+fade, 0.+fade)
@@ -24,7 +24,7 @@ arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and 
 feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 3.0
-time_in_cylinder = 1
+time_in_cylinder = 1.5
 circle = .15
 rotation = 80
 speed = .25
@@ -72,10 +72,11 @@ def main():
     rat_head_position = rat_rb.position
     rat_camera = rc.Camera(projection=cube_mapping_projection, position=rat_head_position)
     cylinder = arena_reader.get_mesh("Cylinder")
+
     cylinder.parent = arena
     cylinder.uniforms['diffuse'] = cylinder_color
     cylinder.uniforms['flat_shading'] = flat_shading_on
-    cylinder.position.y = -.01
+    cylinder.position.y = -.22
     cylinder.position.x =-0.15
     cylinder.position.z = -.0
 
