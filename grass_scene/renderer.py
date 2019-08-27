@@ -7,7 +7,7 @@ import pyglet.gl as gl
 import ratcave as rc
 from ratcave.resources import cube_shader, default_shader
 from natnetclient import NatClient
-from utils import get_screen, remove_image_lines_from_mtl
+from utils import get_screen, remove_image_lines_from_mtl, load_textured_mesh
 import numpy as np
 from numpy import linalg
 from threading import Timer
@@ -16,15 +16,15 @@ import time
 from pyglet.window import key
 
 # Experiment parameters:
-fade=.25 # 0-1 numbers only
-flat_shading_on = True
-background_color = (1., 1., 1.)
-cylinder_color = (0.+fade, 0.+fade, 0.+fade)
+fade=0. # 0-1 numbers only
+flat_shading_on = False
+background_color = (0., 1., 0.)
+cylinder_color = (1.+fade, 1.+fade, 1.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 3.0
-time_in_cylinder = 1.5
+time_in_cylinder = 2.25
 circle = .15
 rotation = 80
 speed = .25
@@ -71,7 +71,9 @@ def main():
     cube_mapping_projection = rc.PerspectiveProjection(aspect=1, fov_y=90, z_near=.001, z_far=10)
     rat_head_position = rat_rb.position
     rat_camera = rc.Camera(projection=cube_mapping_projection, position=rat_head_position)
-    cylinder = arena_reader.get_mesh("Cylinder")
+    #cylinder = arena_reader.get_mesh("Cylinder")
+
+    cylinder = load_textured_mesh(arena_reader, 'Cylinder', 'dirt.png')
 
     cylinder.parent = arena
     cylinder.uniforms['diffuse'] = cylinder_color
