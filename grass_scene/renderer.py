@@ -13,7 +13,12 @@ from numpy import linalg
 from threading import Timer
 import serial
 import time
+from time import strftime
 from pyglet.window import key
+
+
+
+
 
 # Experiment parameters:
 fade=0. # 0-1 numbers only
@@ -23,11 +28,14 @@ cylinder_color = (1.+fade, 1.+fade, 1.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
 actuator_port = 'COM7'
-exposure_time = 3.0
-time_in_cylinder = 2.25
+exposure_time = 1.5
+time_in_cylinder = 1.5
 circle = .15
 rotation = 80
 speed = .25
+pellets=0
+
+
 
 # Parameters never to change:
 environment_color_filter = 1., 1., 1.
@@ -44,6 +52,10 @@ def main():
     client = NatClient()
     arena_rb = client.rigid_bodies['Arena']
     rat_rb = client.rigid_bodies['Rat']
+
+    #create text file to include metadata
+    f = open(" %s.txt" % strftime("%Y%m%d-%H%M%S"), "a+")
+    f.write("Recording started on : %s \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
 
     # connect to feeder
     feeder = serial.Serial(feeder_port, 9600)
@@ -97,6 +109,14 @@ def main():
     arena.in_hotspot_since = 0
     arena.in_refractory = False
 
+    #starting description file
+    f = open(" %s.txt" % strftime("%Y%m%d-%H%M%S"), "a+")
+    f.write("Recording started on : %s \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
+
+
+
+
+
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
 
@@ -130,7 +150,9 @@ def main():
                 cylinder.visible = False
                 feeder.write('f')
                 arena.feed_counts += 1
-                print("Feed counts: %s" % arena.feed_counts)
+                print("Feed counts: %s at %s " % (arena.feed_counts, strftime("%H:%M:%S")))
+
+                f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
                 #z = np.random.random() * z_diff - 0.59
                 #x = np.random.random() * x_diff - 0.37
                 #cylinder.position.xz = x, z
