@@ -108,6 +108,7 @@ def main():
     arena.feed_counts = 0
     arena.in_hotspot_since = 0
     arena.in_refractory = False
+    arena.cumulative_in = 0
 
     #starting description file
     f = open(" %s.txt" % strftime("%Y%m%d-%H%M%S"), "a+")
@@ -150,7 +151,7 @@ def main():
                 cylinder.visible = False
                 feeder.write('f')
                 arena.feed_counts += 1
-                print("Feed counts: %s at %s " % (arena.feed_counts, strftime("%H:%M:%S")))
+                print("Feed counts: %s at %s total %d " % (arena.feed_counts, strftime("%H:%M:%S"), arena.cumulative_in))
 
                 f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
                 #z = np.random.random() * z_diff - 0.59
@@ -160,7 +161,7 @@ def main():
 
                 t1 = Timer(exposure_time, make_cylinder_visible)
                 t1.start()
-
+                arena.cumulative_in +=arena.in_hotspot_since
                 arena.in_refractory = True
 
         else:
