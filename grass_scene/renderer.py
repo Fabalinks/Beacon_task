@@ -107,6 +107,7 @@ def main():
     arena.last_move_action = 'b'
     arena.feed_counts = 0
     arena.in_hotspot_since = 0
+    arena.in_reward_zone_since = 0
     arena.in_refractory = False
     arena.cumulative_in = 0
 
@@ -145,15 +146,26 @@ def main():
         #print ("position x: %s" %cylinder.position_global[0])
         #print ("position y: %s" %cylinder.position_global[2])
 
+        if distance < circle:
+            if not arena.in_reward_zone_since:
+                arena.in_reward_zone_since = time.time()
+
+                print("start %s" % (arena.in_reward_zone_since - 1567153487))
+        else:
+            if arena.in_reward_zone_since > 0:
+                arena.cumulative_in += time.time() - arena.in_reward_zone_since
+
+                print("end %s" % (time.time() - 1567153487))
+            arena.in_reward_zone_since = 0
+
         if distance < circle and not arena.in_refractory:
             in_hotspot()
-            arena.cumulative_in = time.clock()
 
             if time.time() - arena.in_hotspot_since > time_in_cylinder:
                 cylinder.visible = False
                 feeder.write('f')
                 arena.feed_counts += 1
-                print("Feed counts: %s at %s total %d " % (arena.feed_counts, strftime("%H:%M:%S"), arena.cumulative_in))
+                print("Feed counts: %s at %s total %0.3f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
 
                 f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
                 #z = np.random.random() * z_diff - 0.59
@@ -182,7 +194,6 @@ def main():
         if keys[key.D]:
             cylinder.rotation.z +=rotation *dt
 
-
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
     @window.event
@@ -202,5 +213,10 @@ def main():
             with projector, light:
                 arena.draw()
 
+    @window.event
+    def on_close():
+        print("I'm closing now")
+        f.write("Total reward zone time %s \r\n" % arena.cumulative_in)
+        print("Total reward zone time %s" % arena.cumulative_in)
 
     pyglet.app.run()
