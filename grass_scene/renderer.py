@@ -15,7 +15,6 @@ import serial
 import time
 from time import strftime
 from pyglet.window import key
-import timeit
 
 
 
@@ -33,7 +32,7 @@ time_in_cylinder = 1.5
 circle = .15
 rotation = 80
 speed = .25
-pellets=0
+
 
 
 
@@ -86,7 +85,6 @@ def main():
     #cylinder = arena_reader.get_mesh("Cylinder")
 
     cylinder = load_textured_mesh(arena_reader, 'Cylinder', 'dirt.png')
-
     cylinder.parent = arena
     cylinder.uniforms['diffuse'] = cylinder_color
     cylinder.uniforms['flat_shading'] = flat_shading_on
@@ -103,7 +101,7 @@ def main():
     framebuffer = rc.FBO(texture=cube_texture) ## creating a fr`amebuffer as the texture - in tut 4 it was the blue screen
     arena.textures.append(cube_texture)
 
-    # last arena move
+    # Arena basics
     arena.last_move_action = 'b'
     arena.feed_counts = 0
     arena.in_hotspot_since = 0
@@ -111,14 +109,11 @@ def main():
     arena.in_refractory = False
     arena.cumulative_in = 0
 
-    #starting description file
+    # starting description file
     f = open(" %s.txt" % strftime("%Y%m%d-%H%M%S"), "a+")
     f.write("Recording started on : %s \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
 
-
-
-
-
+    #To be able to use keyes
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
 
@@ -142,14 +137,13 @@ def main():
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
-        #print(arena.cumulative_in)
         #print ("position x: %s" %cylinder.position_global[0])
         #print ("position y: %s" %cylinder.position_global[2])
 
+        # counting time in reward zone - anytime
         if distance < circle:
             if not arena.in_reward_zone_since:
                 arena.in_reward_zone_since = time.time()
-
 
         else:
             if arena.in_reward_zone_since > 0:
@@ -213,6 +207,7 @@ def main():
             with projector, light:
                 arena.draw()
 
+    # anything in the closing message goes here|
     @window.event
     def on_close():
         f.write("Animal dispensed: %s pellets and spent %0.2f seconds in the reward zone" % (arena.feed_counts,arena.cumulative_in))
