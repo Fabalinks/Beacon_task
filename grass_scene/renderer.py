@@ -15,7 +15,7 @@ import serial
 import time
 from time import strftime
 from pyglet.window import key
-
+import timeit
 
 
 
@@ -141,11 +141,13 @@ def main():
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         distance = linalg.norm(diff_position)
+        #print(arena.cumulative_in)
         #print ("position x: %s" %cylinder.position_global[0])
         #print ("position y: %s" %cylinder.position_global[2])
 
         if distance < circle and not arena.in_refractory:
             in_hotspot()
+            arena.cumulative_in = time.clock()
 
             if time.time() - arena.in_hotspot_since > time_in_cylinder:
                 cylinder.visible = False
@@ -161,7 +163,7 @@ def main():
 
                 t1 = Timer(exposure_time, make_cylinder_visible)
                 t1.start()
-                arena.cumulative_in +=arena.in_hotspot_since
+
                 arena.in_refractory = True
 
         else:
