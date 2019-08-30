@@ -150,12 +150,12 @@ def main():
             if not arena.in_reward_zone_since:
                 arena.in_reward_zone_since = time.time()
 
-                print("start %s" % (arena.in_reward_zone_since - 1567153487))
+
         else:
             if arena.in_reward_zone_since > 0:
                 arena.cumulative_in += time.time() - arena.in_reward_zone_since
 
-                print("end %s" % (time.time() - 1567153487))
+
             arena.in_reward_zone_since = 0
 
         if distance < circle and not arena.in_refractory:
@@ -165,7 +165,7 @@ def main():
                 cylinder.visible = False
                 feeder.write('f')
                 arena.feed_counts += 1
-                print("Feed counts: %s at %s total %0.3f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
+                print("Feed counts: %s at %s total %0.2f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
 
                 f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
                 #z = np.random.random() * z_diff - 0.59
@@ -215,8 +215,7 @@ def main():
 
     @window.event
     def on_close():
-        print("I'm closing now")
-        f.write("Total reward zone time %s \r\n" % arena.cumulative_in)
-        print("Total reward zone time %s" % arena.cumulative_in)
+        f.write("Animal dispensed: %s pellets and spent %0.2f seconds in the reward zone" % (arena.feed_counts,arena.cumulative_in))
+        print("Animal dispensed: %s pellets and spent %0.2f seconds in the reward zone" % (arena.feed_counts,arena.cumulative_in))
 
     pyglet.app.run()
