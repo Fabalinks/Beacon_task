@@ -114,7 +114,7 @@ def main():
     # starting description file
     f = open(" %s.txt" % strftime("%Y%m%d-%H%M%S"), "a+")
     f.write("Recording started on : %s \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
-
+    time_stamp = strftime("%Y%m%d-%H%M%S")
 
     #To be able to use keyes
     keys = key.KeyStateHandler()
@@ -215,12 +215,13 @@ def main():
     @window.event
     def on_close():
         f.write("Animal dispensed: %s pellets and spent %0.2f seconds in the reward zone" % (arena.feed_counts,arena.cumulative_in))
+
         print("Animal dispensed: %s pellets and spent %0.2f seconds in the reward zone" % (arena.feed_counts,arena.cumulative_in))
         print (entry_duration_list)
 
         #show histogram of beacon movement
         plt.hist(entry_duration_list, bins = 20)
-        plt.savefig()
+        plt.savefig('hist_ %s ' % time_stamp)
         plt.show()
 
 
