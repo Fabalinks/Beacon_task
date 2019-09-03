@@ -214,14 +214,14 @@ def main():
     # anything in the closing message goes here|
     @window.event
     def on_close():
-        f.write("Animal dispensed: %s pellets and spent %0.2f seconds in the reward zone" % (arena.feed_counts,arena.cumulative_in))
-
+        f.write("Animal dispensed: %s pellets and spent %0.2f seconds in the reward zone \r\n" % (arena.feed_counts,arena.cumulative_in))
+        f.write("Animal beacon stay histogram: %s \r\n" % (entry_duration_list))
         print("Animal dispensed: %s pellets and spent %0.2f seconds in the reward zone" % (arena.feed_counts,arena.cumulative_in))
         print (entry_duration_list)
 
         #show histogram of beacon movement
         plt.hist(entry_duration_list, bins = 20)
-        plt.savefig('hist_ %s ' % time_stamp)
+        plt.savefig('hist_%s ' % time_stamp)
         plt.show()
 
 
