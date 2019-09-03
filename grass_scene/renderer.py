@@ -15,6 +15,7 @@ import serial
 import time
 from time import strftime
 from pyglet.window import key
+import matplotlib.pyplot as plt
 
 
 
@@ -108,10 +109,12 @@ def main():
     arena.in_reward_zone_since = 0
     arena.in_refractory = False
     arena.cumulative_in = 0
+    entry_duration_list = []
 
     # starting description file
     f = open(" %s.txt" % strftime("%Y%m%d-%H%M%S"), "a+")
     f.write("Recording started on : %s \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
+
 
     #To be able to use keyes
     keys = key.KeyStateHandler()
@@ -148,6 +151,7 @@ def main():
         else:
             if arena.in_reward_zone_since > 0:
                 arena.cumulative_in += time.time() - arena.in_reward_zone_since
+                entry_duration_list.append(time.time() - arena.in_reward_zone_since)
 
 
             arena.in_reward_zone_since = 0
@@ -212,5 +216,12 @@ def main():
     def on_close():
         f.write("Animal dispensed: %s pellets and spent %0.2f seconds in the reward zone" % (arena.feed_counts,arena.cumulative_in))
         print("Animal dispensed: %s pellets and spent %0.2f seconds in the reward zone" % (arena.feed_counts,arena.cumulative_in))
+        print (entry_duration_list)
+
+        #show histogram of beacon movement
+        plt.hist(entry_duration_list, bins = 20)
+        plt.savefig()
+        plt.show()
+
 
     pyglet.app.run()
