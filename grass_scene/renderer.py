@@ -123,6 +123,8 @@ def main():
     arena.in_refractory = False
     arena.cumulative_in = 0
     entry_duration_list = []
+    entry_timestamp_list = []
+    beg_of_recording = time.time()
 
     # starting description file
     f = open(" %s.txt" % strftime("%Y%m%d-%H%M%S"), "a+")
@@ -165,6 +167,7 @@ def main():
             if arena.in_reward_zone_since > 0:
                 arena.cumulative_in += time.time() - arena.in_reward_zone_since
                 entry_duration_list.append(time.time() - arena.in_reward_zone_since)
+                entry_timestamp_list.append(time.time()- beg_of_recording)
 
 
             arena.in_reward_zone_since = 0
@@ -177,6 +180,7 @@ def main():
                 feeder.write('f')
                 arena.feed_counts += 1
                 print("Feed counts: %s at %s total %0.2f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
+                print(entry_timestamp_list)
 
                 f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
                 #z = np.random.random() * z_diff - 0.59
@@ -233,6 +237,7 @@ def main():
         print (entry_duration_list)
 
         #show histogram of beacon movement
+        plt.plot(entry_timestamp_list)
         plt.hist(entry_duration_list, bins = 20)
         plt.xlabel('time (s)')
         plt.ylabel('frequency')
