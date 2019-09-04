@@ -69,7 +69,6 @@ def main():
     remove_image_lines_from_mtl('assets/3D/beacon_scene.mtl')
     arena_reader = rc.WavefrontReader(arena_filename)
     arena = arena_reader.get_mesh("Arena", position=arena_rb.position)
-
     arena.uniforms['diffuse'] = environment_color_filter
     arena.rotation = arena.rotation.to_quaternion()  # needed for Motive tracker
 
@@ -83,7 +82,14 @@ def main():
     cube_mapping_projection = rc.PerspectiveProjection(aspect=1, fov_y=90, z_near=.001, z_far=10)
     rat_head_position = rat_rb.position
     rat_camera = rc.Camera(projection=cube_mapping_projection, position=rat_head_position)
-    #cylinder = arena_reader.get_mesh("Cylinder")
+
+    plane = arena_reader.get_mesh("Plane")
+    plane = load_textured_mesh(arena_reader, 'Plane', 'snake.png')
+    plane.parent = arena
+    plane.uniforms['diffuse'] = cylinder_color
+    plane.uniforms['flat_shading'] = flat_shading_on
+
+
 
     cylinder = load_textured_mesh(arena_reader, 'Cylinder', 'dirt.png')
     cylinder.parent = arena
@@ -93,7 +99,7 @@ def main():
     cylinder.position.x =-0.15
     cylinder.position.z = -.0
 
-    meshes = [cylinder]
+    meshes = [cylinder,plane]
     virtual_scene = rc.Scene(meshes=meshes, light=light, camera=rat_camera, bgColor= background_color)  # seetign aset virtual scene to be projected as the mesh of the arena
     virtual_scene.gl_states.states = virtual_scene.gl_states.states[:-1]
 
