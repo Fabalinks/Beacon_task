@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 # Experiment parameters:
 fade=0. # 0-1 numbers only
 flat_shading_on = False
-background_color = (0., 1., 0.)
+background_color = (0., 0., 0.)
 cylinder_color = (1.+fade, 1.+fade, 1.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
@@ -84,14 +84,21 @@ def main():
     rat_camera = rc.Camera(projection=cube_mapping_projection, position=rat_head_position)
 
     plane = arena_reader.get_mesh("Plane")
-    plane = load_textured_mesh(arena_reader, 'Plane', 'snake.png')
+    plane = load_textured_mesh(arena_reader, 'Plane', 'dirt.png')
     plane.parent = arena
     plane.uniforms['diffuse'] = cylinder_color
     plane.uniforms['flat_shading'] = flat_shading_on
 
+    sky = arena_reader.get_mesh("Sky")
+    sky = load_textured_mesh(arena_reader, 'Sky', 'sky.png')
+    sky.parent = arena
+    sky.uniforms['diffuse'] = cylinder_color
+    sky.uniforms['flat_shading'] = flat_shading_on
 
 
-    cylinder = load_textured_mesh(arena_reader, 'Cylinder', 'dirt.png')
+
+
+    cylinder = load_textured_mesh(arena_reader, 'Cylinder', 'snake.png')
     cylinder.parent = arena
     cylinder.uniforms['diffuse'] = cylinder_color
     cylinder.uniforms['flat_shading'] = flat_shading_on
@@ -99,7 +106,7 @@ def main():
     cylinder.position.x =-0.15
     cylinder.position.z = -.0
 
-    meshes = [cylinder,plane]
+    meshes = [cylinder,plane,sky]
     virtual_scene = rc.Scene(meshes=meshes, light=light, camera=rat_camera, bgColor= background_color)  # seetign aset virtual scene to be projected as the mesh of the arena
     virtual_scene.gl_states.states = virtual_scene.gl_states.states[:-1]
 
