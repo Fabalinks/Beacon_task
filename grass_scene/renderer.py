@@ -84,7 +84,7 @@ def main():
     rat_camera = rc.Camera(projection=cube_mapping_projection, position=rat_head_position)
 
     plane = arena_reader.get_mesh("Plane")
-    plane = load_textured_mesh(arena_reader, 'Plane', 'dirt.png')
+    plane = load_textured_mesh(arena_reader, 'Plane', 'sawdust.jpg')
     plane.parent = arena
     plane.uniforms['diffuse'] = cylinder_color
     plane.uniforms['flat_shading'] = flat_shading_on
