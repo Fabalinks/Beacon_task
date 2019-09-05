@@ -200,7 +200,7 @@ def main():
                 feeder.write('f')
                 arena.feed_counts += 1
                 print("Feed counts: %s at %s total %0.2f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
-                print(entry_timestamp_list)
+
 
                 f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
                 #z = np.random.random() * z_diff - 0.59
@@ -260,20 +260,22 @@ def main():
         #Plotting
         plt.figure(figsize=(18,9))
         plt.subplot(131 )
-        plt.plot(entry_timestamp_list)
-        plt.xlabel('time (s)')
-        plt.ylabel('frequency')
+        plt.hist(entry_timestamp_list,bins = 20)
+        plt.xlabel('')
+        plt.ylabel('time point')
         plt.title('beacon stays')
         plt.subplot(132)
         plt.hist(entry_duration_list, bins = 20)
         plt.xlabel('time (s)')
         plt.ylabel('frequency')
         plt.title('beacon stays')
+        #plt.text(2, 0.65, 'stay: ' , fontsize=20)
         plt.subplot(133)
         plt.hist(sham_entry_duration_list, bins = 20)
         plt.xlabel('time (s)')
         plt.ylabel('frequency')
         plt.title('SHAM beacon stays')
+        #plt.text(2, 0.65,'SHAM stay: ' , fontsize=20)
         plt.savefig('hist_%s ' % time_stamp)
         plt.tight_layout()
         plt.show()
