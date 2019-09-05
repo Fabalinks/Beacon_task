@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 # Experiment parameters:
 fade=0. # 0-1 numbers only
 flat_shading_on = False
-background_color = (0., 0., 0.)
+background_color = (1., 1., 1.)
 cylinder_color = (1.+fade, 1.+fade, 1.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
@@ -83,22 +83,22 @@ def main():
     rat_head_position = rat_rb.position
     rat_camera = rc.Camera(projection=cube_mapping_projection, position=rat_head_position)
 
-    plane = arena_reader.get_mesh("Plane")
-    plane = load_textured_mesh(arena_reader, 'Plane', 'sawdust.jpg')
-    plane.parent = arena
-    plane.uniforms['diffuse'] = cylinder_color
-    plane.uniforms['flat_shading'] = flat_shading_on
+    #plane = arena_reader.get_mesh("Plane")
+    #plane = load_textured_mesh(arena_reader, 'Plane', 'sawdust.jpg')
+    #plane.parent = arena
+    #plane.uniforms['diffuse'] = cylinder_color
+    #plane.uniforms['flat_shading'] = flat_shading_on
 
-    sky = arena_reader.get_mesh("Sky")
-    sky = load_textured_mesh(arena_reader, 'Sky', 'sky.png')
-    sky.parent = arena
-    sky.uniforms['diffuse'] = cylinder_color
-    sky.uniforms['flat_shading'] = flat_shading_on
-
-
+    #sky = arena_reader.get_mesh("Sky")
+    #sky = load_textured_mesh(arena_reader, 'Sky', 'sky.png')
+    #sky.parent = arena
+    #sky.uniforms['diffuse'] = cylinder_color
+    #sky.uniforms['flat_shading'] = flat_shading_on
 
 
-    cylinder = load_textured_mesh(arena_reader, 'Cylinder', 'snake.png')
+
+
+    cylinder = load_textured_mesh(arena_reader, 'Cylinder', 'dirt.png')
     cylinder.parent = arena
     cylinder.uniforms['diffuse'] = cylinder_color
     cylinder.uniforms['flat_shading'] = flat_shading_on
@@ -106,7 +106,7 @@ def main():
     cylinder.position.x =-0.15
     cylinder.position.z = -.0
 
-    meshes = [cylinder,plane,sky]
+    meshes = [cylinder]
     virtual_scene = rc.Scene(meshes=meshes, light=light, camera=rat_camera, bgColor= background_color)  # seetign aset virtual scene to be projected as the mesh of the arena
     virtual_scene.gl_states.states = virtual_scene.gl_states.states[:-1]
 
@@ -120,10 +120,14 @@ def main():
     arena.feed_counts = 0
     arena.in_hotspot_since = 0
     arena.in_reward_zone_since = 0
+    arena.in_reward_zone_since2 = 0
     arena.in_refractory = False
     arena.cumulative_in = 0
     entry_duration_list = []
     entry_timestamp_list = []
+    arena.cumulative_in2 = 0
+    sham_entry_duration_list = []
+    sham_entry_timestamp_list = []
     beg_of_recording = time.time()
 
     # starting description file
@@ -153,8 +157,12 @@ def main():
 
         rat_position = rat_rb.position.x, rat_rb.position.z
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
+        sham_position = 0.026124984,0.21062018
         diff_position = np.array(rat_position) - np.array(cylinder_position)
+        sham_diff_position = np.array(rat_position) - np.array(sham_position)
         distance = linalg.norm(diff_position)
+        sham_distance = linalg.norm(sham_diff_position)
+
         #print ("position x: %s" %cylinder.position_global[0])
         #print ("position y: %s" %cylinder.position_global[2])
 
@@ -169,8 +177,20 @@ def main():
                 entry_duration_list.append(time.time() - arena.in_reward_zone_since)
                 entry_timestamp_list.append(time.time()- beg_of_recording)
 
-
             arena.in_reward_zone_since = 0
+
+        if sham_distance < circle:
+            if not arena.in_reward_zone_since2:
+                arena.in_reward_zone_since2 = time.time()
+
+        else:
+            if arena.in_reward_zone_since2 > 0:
+                arena.cumulative_in2 += time.time() - sham_arena.in_reward_zone_since
+                sham_entry_duration_list.append(time.time() - sham_arena.in_reward_zone_since)
+                sham_entry_timestamp_list.append(time.time()- beg_of_recording)
+
+            arena.in_reward_zone_since2 = 0
+
 
         if distance < circle and not arena.in_refractory:
             in_hotspot()
@@ -237,13 +257,19 @@ def main():
         print (entry_duration_list)
 
         #show histogram of beacon movement
+        plt.subplot(121 )
         plt.plot(entry_timestamp_list)
+        plt.xlabel('time (s)')
+        plt.ylabel('frequency')
+        plt.title('beacon stays')
+        plt.subplot(122)
         plt.hist(entry_duration_list, bins = 20)
         plt.xlabel('time (s)')
         plt.ylabel('frequency')
         plt.title('beacon stays')
-        plt.savefig('hist_%s ' % time_stamp)
-        plt.show()
+        #plt.savefig('hist_%s ' % time_stamp)
+        plt.tight_layout()
+        #plt.show()
 
 
     pyglet.app.run()
