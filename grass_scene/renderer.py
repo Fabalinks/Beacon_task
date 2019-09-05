@@ -185,8 +185,8 @@ def main():
 
         else:
             if arena.in_reward_zone_since2 > 0:
-                arena.cumulative_in2 += time.time() - sham_arena.in_reward_zone_since
-                sham_entry_duration_list.append(time.time() - sham_arena.in_reward_zone_since)
+                arena.cumulative_in2 += time.time() - arena.in_reward_zone_since2
+                sham_entry_duration_list.append(time.time() - arena.in_reward_zone_since2)
                 sham_entry_timestamp_list.append(time.time()- beg_of_recording)
 
             arena.in_reward_zone_since2 = 0
@@ -251,25 +251,32 @@ def main():
     # anything in the closing message goes here|
     @window.event
     def on_close():
-        f.write("Animal dispensed: %s pellets and spent %0.2f seconds in the reward zone \r\n" % (arena.feed_counts,arena.cumulative_in))
+        f.write("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
         f.write("Animal beacon stay histogram: %s \r\n" % (entry_duration_list))
-        print("Animal dispensed: %s pellets and spent %0.2f seconds in the reward zone" % (arena.feed_counts,arena.cumulative_in))
+        f.write("Animal SHAM beacon stay histogram: %s \r\n" % (sham_entry_duration_list))
+        print("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
         print (entry_duration_list)
 
-        #show histogram of beacon movement
-        plt.subplot(121 )
+        #Plotting
+        plt.figure(figsize=(18,9))
+        plt.subplot(131 )
         plt.plot(entry_timestamp_list)
         plt.xlabel('time (s)')
         plt.ylabel('frequency')
         plt.title('beacon stays')
-        plt.subplot(122)
+        plt.subplot(132)
         plt.hist(entry_duration_list, bins = 20)
         plt.xlabel('time (s)')
         plt.ylabel('frequency')
         plt.title('beacon stays')
-        #plt.savefig('hist_%s ' % time_stamp)
+        plt.subplot(133)
+        plt.hist(sham_entry_duration_list, bins = 20)
+        plt.xlabel('time (s)')
+        plt.ylabel('frequency')
+        plt.title('SHAM beacon stays')
+        plt.savefig('hist_%s ' % time_stamp)
         plt.tight_layout()
-        #plt.show()
+        plt.show()
 
 
     pyglet.app.run()
