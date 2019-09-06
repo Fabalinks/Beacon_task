@@ -16,7 +16,7 @@ import time
 from time import strftime
 from pyglet.window import key
 import matplotlib.pyplot as plt
-
+import threading
 
 
 
@@ -148,13 +148,29 @@ def main():
         if not arena.in_hotspot_since:
             arena.in_hotspot_since = time.time()
 
+    #ploting 3d movement
+    ratx = []
+    raty = []
+    ratz = []
+
+    def ratD_track():
+        threading.Timer(.5, ratD_track).start()
+        ratx.append(rat_rb.position.x)
+        raty.append(rat_rb.position.z)
+        ratz.append(rat_rb.position.y)
+
+    ratD_track()
+
+
+
+
     def update(dt):
         """main update function: put any movement or tracking steps in here, because it will be run constantly!"""
         virtual_scene.camera.position.xyz = rat_rb.position
         arena.uniforms['playerPos'] = rat_rb.position
         arena.position, arena.rotation.xyzw = arena_rb.position, arena_rb.quaternion
         arena.position.y -= .02
-
+        cylinder.visible= False
         rat_position = rat_rb.position.x, rat_rb.position.z
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         sham_position = 0.026124984,0.21062018
@@ -165,6 +181,9 @@ def main():
 
         #print ("position x: %s" %cylinder.position_global[0])
         #print ("position y: %s" %cylinder.position_global[2])
+        #print (rat_rb.position.x)
+        print(ratz)
+
 
         # counting time in reward zone - anytime
         if distance < circle:
@@ -263,11 +282,11 @@ def main():
         fig.text(0.21, 0.8, 'Number of pellets: %0.0f '% arena.feed_counts, bbox=dict(facecolor='yellow', alpha=.5), weight="bold")
         fig.text(0.50, 0.8, 'Time in beacon: %0.0f '% arena.cumulative_in, bbox=dict(facecolor='green', alpha=.5),weight="bold")
         fig.text(0.75, 0.8, 'Time in SHAM beacon: %0.0f '% arena.cumulative_in2, bbox=dict(facecolor='cyan', alpha=.5),weight="bold")
-        ax[0].hist(entry_timestamp_list,bins = 40)
+        ax[0].hist(entry_timestamp_list,bins = 40,color='gold')
         ax[0].set(xlabel='time point', ylabel='frequency',title='beacon entries')
-        ax[1].hist(entry_duration_list, bins = 20)
+        ax[1].hist(entry_duration_list, bins = 20,color='olive')
         ax[1].set(xlabel='time (s)', ylabel='frequency',title='beacon stays')
-        ax[2].hist(sham_entry_duration_list, bins = 20)
+        ax[2].hist(sham_entry_duration_list, bins = 20,color='teal')
         ax[2].set(xlabel='time (s)', ylabel='frequency',title='SHAM beacon stays')
         fig.savefig('hist_%s ' % time_stamp)
         fig.tight_layout()
