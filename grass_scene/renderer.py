@@ -260,9 +260,9 @@ def main():
         #Plotting
         plt.style.use('ggplot')
         fig,ax = plt.subplots(1,3, figsize=(18, 9))
-        fig.text(0.19, 0.8, 'Number of pellets: %0.0f '% arena.feed_counts, bbox=dict(facecolor='yellow', alpha=.5), weight="bold", horizontalalignment='left', verticalalignment='center')
-        fig.text(0.53, 0.8, 'Time in beacon: %0.0f '% arena.cumulative_in, bbox=dict(facecolor='green', alpha=.5),weight="bold", horizontalalignment='left', verticalalignment='center')
-        fig.text(0.86, 0.8, 'Time in SHAM beacon: %0.0f '% arena.cumulative_in2, bbox=dict(facecolor='cyan', alpha=.5),weight="bold", horizontalalignment='left', verticalalignment='center')
+        fig.text(0.21, 0.8, 'Number of pellets: %0.0f '% arena.feed_counts, bbox=dict(facecolor='yellow', alpha=.5), weight="bold")
+        fig.text(0.50, 0.8, 'Time in beacon: %0.0f '% arena.cumulative_in, bbox=dict(facecolor='green', alpha=.5),weight="bold")
+        fig.text(0.75, 0.8, 'Time in SHAM beacon: %0.0f '% arena.cumulative_in2, bbox=dict(facecolor='cyan', alpha=.5),weight="bold")
         ax[0].hist(entry_timestamp_list,bins = 40)
         ax[0].set(xlabel='time point', ylabel='frequency',title='beacon entries')
         ax[1].hist(entry_duration_list, bins = 20)
