@@ -17,6 +17,8 @@ from time import strftime
 from pyglet.window import key
 import matplotlib.pyplot as plt
 import threading
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import axes3d, Axes3D
 
 
 
@@ -278,7 +280,7 @@ def main():
 
         #Plotting
         plt.style.use('ggplot')
-        fig,ax = plt.subplots(1,3, figsize=(18, 9))
+        fig,ax = plt.subplots(1,4, figsize=(18, 9))
         fig.text(0.21, 0.8, 'Number of pellets: %0.0f '% arena.feed_counts, bbox=dict(facecolor='yellow', alpha=.5), weight="bold")
         fig.text(0.50, 0.8, 'Time in beacon: %0.0f '% arena.cumulative_in, bbox=dict(facecolor='green', alpha=.5),weight="bold")
         fig.text(0.75, 0.8, 'Time in SHAM beacon: %0.0f '% arena.cumulative_in2, bbox=dict(facecolor='cyan', alpha=.5),weight="bold")
@@ -288,6 +290,10 @@ def main():
         ax[1].set(xlabel='time (s)', ylabel='frequency',title='beacon stays')
         ax[2].hist(sham_entry_duration_list, bins = 20,color='teal')
         ax[2].set(xlabel='time (s)', ylabel='frequency',title='SHAM beacon stays')
+
+        ax[3] = fig.gca(projection='3d')
+        ax[3]= fig.add_subplot(1, 2, 1, projection='3d')
+        ax[3].plot(ratx, raty, ratz, label='parametric curve')
         fig.savefig('hist_%s ' % time_stamp)
         fig.tight_layout()
         plt.show()
