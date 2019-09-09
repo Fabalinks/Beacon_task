@@ -35,6 +35,7 @@ time_in_cylinder = 1.5
 circle = .15
 rotation = 80
 speed = .25
+movement_collection_time = .1
 
 
 
@@ -156,7 +157,7 @@ def main():
     ratz = []
 
     def ratD_track():
-        threading.Timer(.5, ratD_track).start()
+        threading.Timer(movement_collection_time, ratD_track).start()
         ratx.append(rat_rb.position.x)
         raty.append(rat_rb.position.z)
         ratz.append(rat_rb.position.y)
@@ -172,7 +173,7 @@ def main():
         arena.uniforms['playerPos'] = rat_rb.position
         arena.position, arena.rotation.xyzw = arena_rb.position, arena_rb.quaternion
         arena.position.y -= .02
-        cylinder.visible= False
+        cylinder.visible= True
         rat_position = rat_rb.position.x, rat_rb.position.z
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         sham_position = 0.026124984,0.21062018
@@ -184,7 +185,7 @@ def main():
         #print ("position x: %s" %cylinder.position_global[0])
         #print ("position y: %s" %cylinder.position_global[2])
         #print (rat_rb.position.x)
-        print(ratz)
+        #print(ratz)
 
 
         # counting time in reward zone - anytime
@@ -272,15 +273,19 @@ def main():
     # anything in the closing message goes here|
     @window.event
     def on_close():
+
         f.write("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
         f.write("Animal beacon stay histogram: %s \r\n" % (entry_duration_list))
         f.write("Animal SHAM beacon stay histogram: %s \r\n" % (sham_entry_duration_list))
+        f.write("Animal X position every %s seconds : %s \r\n" % (movement_collection_time,ratx))
+        f.write("Animal Y position every %s seconds : %s \r\n" % (movement_collection_time,raty))
+        f.write("Animal Z position every %s seconds : %s \r\n" % (movement_collection_time,ratz))
         print("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
         print (entry_duration_list)
 
         #Plotting
         plt.style.use('ggplot')
-        fig,ax = plt.subplots(1,4, figsize=(18, 9))
+        fig,ax = plt.subplots(1,3, figsize=(18, 9))
         fig.text(0.21, 0.8, 'Number of pellets: %0.0f '% arena.feed_counts, bbox=dict(facecolor='yellow', alpha=.5), weight="bold")
         fig.text(0.50, 0.8, 'Time in beacon: %0.0f '% arena.cumulative_in, bbox=dict(facecolor='green', alpha=.5),weight="bold")
         fig.text(0.75, 0.8, 'Time in SHAM beacon: %0.0f '% arena.cumulative_in2, bbox=dict(facecolor='cyan', alpha=.5),weight="bold")
@@ -290,13 +295,26 @@ def main():
         ax[1].set(xlabel='time (s)', ylabel='frequency',title='beacon stays')
         ax[2].hist(sham_entry_duration_list, bins = 20,color='teal')
         ax[2].set(xlabel='time (s)', ylabel='frequency',title='SHAM beacon stays')
-
-        ax[3] = fig.gca(projection='3d')
-        ax[3]= fig.add_subplot(1, 2, 1, projection='3d')
-        ax[3].plot(ratx, raty, ratz, label='parametric curve')
         fig.savefig('hist_%s ' % time_stamp)
+        fig.canvas.set_window_title('Beacon stays')
         fig.tight_layout()
         plt.show()
 
+        fig2 = plt.figure(figsize=plt.figaspect(0.5))
+        ax = fig2.gca(projection='3d')
+        ax = fig2.add_subplot(1, 1, 1, projection='3d')
+        ax.set(xlabel='x_position', ylabel='Y-position',zlabel = 'Height',title='beacon stays')
+        ax.plot(ratx, raty, ratz,)
+        fig2.savefig('3D_%s ' % time_stamp)
+        plt.show()
+
+        fig3 = plt.figure(figsize=plt.figaspect(0.5))
+        plt.hist2d(ratx, raty, bins=100)
+        plt.xlabel('x')
+        plt.ylabel('y')
+        cbar = plt.colorbar()
+        cbar.ax.set_ylabel('Counts')
+        fig3.savefig('2Dhist_%s ' % time_stamp)
+        plt.show()
 
     pyglet.app.run()
