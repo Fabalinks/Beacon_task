@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import threading
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import axes3d, Axes3D
+import os
 
 
 
@@ -36,6 +37,7 @@ circle = .15
 rotation = 80
 speed = .25
 movement_collection_time = .1
+save = False
 
 
 
@@ -295,7 +297,7 @@ def main():
         ax[1].set(xlabel='time (s)', ylabel='frequency',title='beacon stays')
         ax[2].hist(sham_entry_duration_list, bins = 20,color='teal')
         ax[2].set(xlabel='time (s)', ylabel='frequency',title='SHAM beacon stays')
-        fig.savefig('hist_%s ' % time_stamp)
+
         fig.canvas.set_window_title('Beacon stays')
         fig.tight_layout()
         plt.show()
@@ -305,16 +307,26 @@ def main():
         ax = fig2.add_subplot(1, 1, 1, projection='3d')
         ax.set(xlabel='x_position', ylabel='Y-position',zlabel = 'Height',title='beacon stays')
         ax.plot(ratx, raty, ratz,)
-        fig2.savefig('3D_%s ' % time_stamp)
+        ax.view_init(9, 75)
+
         plt.show()
 
         fig3 = plt.figure(figsize=plt.figaspect(0.5))
-        plt.hist2d(ratx, raty, bins=100)
+        plt.hist2d(ratx, raty, bins=20)
         plt.xlabel('x')
         plt.ylabel('y')
         cbar = plt.colorbar()
         cbar.ax.set_ylabel('Counts')
-        fig3.savefig('2Dhist_%s ' % time_stamp)
+
         plt.show()
+
+        #To save or not?
+        if save == True:
+            fig.savefig('hist_%s ' % time_stamp)
+            fig2.savefig('3D_%s ' % time_stamp)
+            fig3.savefig('2Dhist_%s ' % time_stamp)
+            #os.remove(" %s.txt" % strftime("%Y%m%d-%H%M%S"))
+
+
 
     pyglet.app.run()
