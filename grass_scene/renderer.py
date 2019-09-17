@@ -33,11 +33,11 @@ feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 1.5
 time_in_cylinder = 1.5
-circle = .15
+circle = .10
 rotation = 80
 speed = .25
 movement_collection_time = .1
-save = False
+save = True
 
 
 
@@ -175,7 +175,6 @@ def main():
         arena.uniforms['playerPos'] = rat_rb.position
         arena.position, arena.rotation.xyzw = arena_rb.position, arena_rb.quaternion
         arena.position.y -= .02
-        cylinder.visible= True
         rat_position = rat_rb.position.x, rat_rb.position.z
         cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         sham_position = 0.026124984,0.21062018
@@ -227,10 +226,10 @@ def main():
 
 
                 f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
-                #z = np.random.random() * z_diff - 0.59
-                #x = np.random.random() * x_diff - 0.37
-                #cylinder.position.xz = x, z
-                #cylinder.position.y = -.1
+                z = np.random.random() * z_diff - 0.59
+                x = np.random.random() * x_diff - 0.37
+                cylinder.position.xz = x, z
+                cylinder.position.y = -.1
 
                 t1 = Timer(exposure_time, make_cylinder_visible)
                 t1.start()
@@ -307,12 +306,12 @@ def main():
         ax = fig2.add_subplot(1, 1, 1, projection='3d')
         ax.set(xlabel='x_position', ylabel='Y-position',zlabel = 'Height',title='beacon stays')
         ax.plot(ratx, raty, ratz,)
-        ax.view_init(9, 75)
+        ax.view_init(-65, 70)
 
         plt.show()
 
         fig3 = plt.figure(figsize=plt.figaspect(0.5))
-        plt.hist2d(ratx, raty, bins=20)
+        plt.hist2d(ratx, raty, bins=20,cmax=500)
         plt.xlabel('x')
         plt.ylabel('y')
         cbar = plt.colorbar()
