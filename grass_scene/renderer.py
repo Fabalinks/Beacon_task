@@ -59,8 +59,6 @@ def main():
     rat_rb = client.rigid_bodies['Rat']
 
     #create text file to include metadata
-    f = open(" %s.txt" % strftime("%Y%m%d-%H%M%S"), "a+")
-    f.write("Recording started on : %s \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
 
     # connect to feeder
     feeder = serial.Serial(feeder_port, 9600)
@@ -138,7 +136,7 @@ def main():
 
     # starting description file
     time_stamp = strftime("%Y%m%d-%H%M%S")
-    f = open(" %s.txt" % strftime("%Y%m%d-%H%M%S"), "a+")
+    f = open(" %s.txt" % time_stamp, "a+")
     f.write("Recording started on : %s \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
 
 
@@ -257,7 +255,7 @@ def main():
         time_since_last = time.time() - arena.timestamp
         if movement_collection_time < time_since_last:
 
-            with open("positions.txt", "a+") as f_pos:
+            with open("position %s.txt" % time_stamp, "a+") as f_pos:
                 x, y, z = rat_rb.position
                 f_pos.write("%s %s %s %s\n" % (time.time(), x, y, z))
 
