@@ -37,7 +37,7 @@ circle = .10
 rotation = 80
 speed = .25
 movement_collection_time = .1
-save = True
+save = False
 
 
 
@@ -128,6 +128,7 @@ def main():
     arena.in_reward_zone_since2 = 0
     arena.in_refractory = False
     arena.cumulative_in = 0
+    arena.timestamp = time.time()
     entry_duration_list = []
     entry_timestamp_list = []
     arena.cumulative_in2 = 0
@@ -136,9 +137,10 @@ def main():
     beg_of_recording = time.time()
 
     # starting description file
+    time_stamp = strftime("%Y%m%d-%H%M%S")
     f = open(" %s.txt" % strftime("%Y%m%d-%H%M%S"), "a+")
     f.write("Recording started on : %s \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
-    time_stamp = strftime("%Y%m%d-%H%M%S")
+
 
     #To be able to use keyes
     keys = key.KeyStateHandler()
@@ -158,13 +160,13 @@ def main():
     raty = []
     ratz = []
 
-    def ratD_track():
-        threading.Timer(movement_collection_time, ratD_track).start()
-        ratx.append(rat_rb.position.x)
-        raty.append(rat_rb.position.z)
-        ratz.append(rat_rb.position.y)
-
-    ratD_track()
+    # def ratD_track():
+    #     threading.Timer(movement_collection_time, ratD_track).start()
+    #     ratx.append(rat_rb.position.x)
+    #     raty.append(rat_rb.position.z)
+    #     ratz.append(rat_rb.position.y)
+    #
+    # ratD_track()
 
 
 
@@ -198,7 +200,7 @@ def main():
             if arena.in_reward_zone_since > 0:
                 arena.cumulative_in += time.time() - arena.in_reward_zone_since
                 entry_duration_list.append(time.time() - arena.in_reward_zone_since)
-                entry_timestamp_list.append(time.time()- beg_of_recording)
+                entry_timestamp_list.append(time.time() - beg_of_recording)
 
             arena.in_reward_zone_since = 0
 
@@ -214,7 +216,6 @@ def main():
 
             arena.in_reward_zone_since2 = 0
 
-
         if distance < circle and not arena.in_refractory:
             in_hotspot()
 
@@ -223,7 +224,6 @@ def main():
                 feeder.write('f')
                 arena.feed_counts += 1
                 print("Feed counts: %s at %s total %0.2f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
-
 
                 f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
                 z = np.random.random() * z_diff - 0.59
@@ -239,6 +239,7 @@ def main():
         else:
             arena.in_hotspot_since = 0
 
+        # keys handling
         if keys[key.LEFT]:
             cylinder.position.x -= speed*dt
         if keys[key.RIGHT]:
@@ -252,7 +253,23 @@ def main():
         if keys[key.D]:
             cylinder.rotation.z +=rotation *dt
 
+        # write position to the file
+        time_since_last = time.time() - arena.timestamp
+        if movement_collection_time < time_since_last:
+
+            with open("positions.txt", "a+") as f_pos:
+                x, y, z = rat_rb.position
+                f_pos.write("%s %s %s %s\n" % (time.time(), x, y, z))
+
+                ratx.append(rat_rb.position.x)
+                raty.append(rat_rb.position.z)
+                ratz.append(rat_rb.position.y)
+
+            arena.timestamp = time.time()
+
+
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
+
 
     @window.event
     def on_draw():
