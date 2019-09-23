@@ -316,11 +316,11 @@ def main():
         f.write("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
         f.write("Animal beacon stay histogram: %s \r\n" % (entry_duration_list))
         f.write("Animal SHAM beacon stay histogram: %s \r\n" % (sham_entry_duration_list))
+        f.write("Animals speed: %s \r\n" % (calculateSpeed(ratx,raty,movement_collection_time)))
 
         print("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
         print (entry_duration_list)
         print ("Animal traveled: %s meters" % (calculateDistance(ratx,raty)))
-        print (calculateSpeed(ratx,raty,movement_collection_time))
 
 
         #Plotting
@@ -340,7 +340,7 @@ def main():
         fig.tight_layout()
         plt.show()
 
-        fig2 = plt.figure(figsize=plt.figaspect(0.5))
+        fig2 = plt.figure(figsize=(18, 9))
         ax = fig2.gca(projection='3d')
         ax = fig2.add_subplot(1, 1, 1, projection='3d')
         ax.set(xlabel='x_position', ylabel='Y-position',zlabel = 'Height',title='beacon stays')
@@ -349,12 +349,13 @@ def main():
 
         plt.show()
 
-        fig3 = plt.figure(figsize=plt.figaspect(0.5))
-        plt.hist2d(ratx, raty, bins=20,cmax=500)
-        plt.xlabel('x')
-        plt.ylabel('y')
-        cbar = plt.colorbar()
-        cbar.ax.set_ylabel('Counts')
+        fig3,ax1 = plt.subplots(1,2, figsize=(18, 9))
+        ax1[0].hist2d(ratx, raty, bins=20,cmax=500)
+        ax1[0].set(xlabel='X', ylabel='Y',title='movement histogram',)
+        ax1[1].plot(calculateSpeed(ratx,raty,movement_collection_time))
+        ax1[1].set(xlabel='time', ylabel='speed',title='Velocity graph')
+        fig.text(0.75, 0.8, 'Distance traveled %s' % (calculateDistance(ratx,raty)), bbox=dict(facecolor='blue', alpha=.5),weight="bold")
+        fig3.tight_layout()
 
         plt.show()
 
