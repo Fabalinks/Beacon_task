@@ -16,6 +16,7 @@ import time
 from time import strftime
 from pyglet.window import key
 import matplotlib.pyplot as plt
+import math
 import threading
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import axes3d, Axes3D
@@ -33,7 +34,7 @@ feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 1.5
 time_in_cylinder = 1.5
-circle = .10
+circle = .15
 rotation = 80
 speed = .25
 movement_collection_time = .1
@@ -106,8 +107,8 @@ def main():
     cylinder.uniforms['diffuse'] = cylinder_color
     cylinder.uniforms['flat_shading'] = flat_shading_on
     cylinder.position.y = -.22
-    cylinder.position.x =-0.15
-    cylinder.position.z = -.0
+    cylinder.position.x =-0.027124984
+    cylinder.position.z = -0.36062018
 
     meshes = [cylinder]
     virtual_scene = rc.Scene(meshes=meshes, light=light, camera=rat_camera, bgColor= background_color)  # seetign aset virtual scene to be projected as the mesh of the arena
@@ -141,6 +142,7 @@ def main():
 
 
     #To be able to use keyes
+
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
 
@@ -165,6 +167,25 @@ def main():
     #     ratz.append(rat_rb.position.y)
     #
     # ratD_track()
+ #Calculating distance
+    def calculateDistance(x,y):
+        travel=0
+        for i in range(len(y)-1):
+            dist = math.sqrt((x[0+i] - x[1+i])**2 + (y[0+i] - y[1+i])**2)
+            travel+=dist
+
+        return travel
+
+   # Speed calculation
+    def calculateSpeed(x,y,time):
+        travel=0
+        speed=[]
+        for i in range(len(y)-1):
+            dist = math.sqrt((x[0+i] - x[1+i])**2 + (y[0+i] - y[1+i])**2)/time
+            speed.append(dist)
+
+        return speed
+
 
 
 
@@ -186,6 +207,7 @@ def main():
         #print ("position x: %s" %cylinder.position_global[0])
         #print ("position y: %s" %cylinder.position_global[2])
         #print (rat_rb.position.x)
+        #print (rat_rb.position.z)
         #print(ratz)
 
 
@@ -226,8 +248,8 @@ def main():
                 f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
                 z = np.random.random() * z_diff - 0.59
                 x = np.random.random() * x_diff - 0.37
-                cylinder.position.xz = x, z
-                cylinder.position.y = -.1
+                cylinder.position.xz = -0.027124984,-0.36062018
+
 
                 t1 = Timer(exposure_time, make_cylinder_visible)
                 t1.start()
@@ -263,6 +285,7 @@ def main():
                 raty.append(rat_rb.position.z)
                 ratz.append(rat_rb.position.y)
 
+
             arena.timestamp = time.time()
 
 
@@ -293,11 +316,12 @@ def main():
         f.write("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
         f.write("Animal beacon stay histogram: %s \r\n" % (entry_duration_list))
         f.write("Animal SHAM beacon stay histogram: %s \r\n" % (sham_entry_duration_list))
-        f.write("Animal X position every %s seconds : %s \r\n" % (movement_collection_time,ratx))
-        f.write("Animal Y position every %s seconds : %s \r\n" % (movement_collection_time,raty))
-        f.write("Animal Z position every %s seconds : %s \r\n" % (movement_collection_time,ratz))
+
         print("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
         print (entry_duration_list)
+        print ("Animal traveled: %s meters" % (calculateDistance(ratx,raty)))
+        print (calculateSpeed(ratx,raty,movement_collection_time))
+
 
         #Plotting
         plt.style.use('ggplot')
