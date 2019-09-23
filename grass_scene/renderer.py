@@ -33,12 +33,13 @@ arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and 
 feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 1.5
-time_in_cylinder = 1.5
+time_in_cylinder = 15000
 circle = .15
 rotation = 80
 speed = .25
 movement_collection_time = .1
 save = True
+cylinder_visible= True
 
 
 
@@ -110,6 +111,7 @@ def main():
     cylinder.position.x =-0.027124984
     cylinder.position.z = -0.36062018
 
+
     meshes = [cylinder]
     virtual_scene = rc.Scene(meshes=meshes, light=light, camera=rat_camera, bgColor= background_color)  # seetign aset virtual scene to be projected as the mesh of the arena
     virtual_scene.gl_states.states = virtual_scene.gl_states.states[:-1]
@@ -147,8 +149,9 @@ def main():
     window.push_handlers(keys)
 
     # updating the position of the arena in xyz and also in rotational perspective
+    cylinder.visible = False
     def make_cylinder_visible():
-        cylinder.visible = True
+        cylinder.visible = cylinder_visible
         arena.in_refractory = False
 
     def in_hotspot():
@@ -349,12 +352,15 @@ def main():
 
         plt.show()
 
-        fig3,ax1 = plt.subplots(1,2, figsize=(18, 9))
+        fig3,ax1 = plt.subplots(1,3, figsize=(18, 9))
         ax1[0].hist2d(ratx, raty, bins=20,cmax=500)
         ax1[0].set(xlabel='X', ylabel='Y',title='movement histogram',)
-        ax1[1].plot(calculateSpeed(ratx,raty,movement_collection_time))
-        ax1[1].set(xlabel='time', ylabel='speed',title='Velocity graph')
-        fig3.text(0.75, 0.8, 'Distance traveled: %s meters' % (calculateDistance(ratx,raty)), bbox=dict(facecolor='olive', alpha=.5),weight="bold")
+        ax1[1].plot(ratx,raty)
+        ax1[1].set_ybound(upper=2)
+        ax1[1].set(xlabel='X', ylabel='Y',title='Occupancy')
+        ax1[2].plot(calculateSpeed(ratx,raty,movement_collection_time))
+        ax1[2].set(xlabel='time', ylabel='speed',title='Velocity graph')
+        fig3.text(0.75, 0.8, 'Distance traveled: %0.2f meters' % (calculateDistance(ratx,raty)), bbox=dict(facecolor='olive', alpha=.5),weight="bold")
         fig3.tight_layout()
 
         plt.show()
