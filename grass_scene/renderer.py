@@ -38,7 +38,7 @@ circle = .15
 rotation = 80
 speed = .25
 movement_collection_time = .1
-save = False
+save = True
 
 
 
@@ -354,7 +354,7 @@ def main():
         ax1[0].set(xlabel='X', ylabel='Y',title='movement histogram',)
         ax1[1].plot(calculateSpeed(ratx,raty,movement_collection_time))
         ax1[1].set(xlabel='time', ylabel='speed',title='Velocity graph')
-        fig.text(0.75, 0.8, 'Distance traveled %s' % (calculateDistance(ratx,raty)), bbox=dict(facecolor='blue', alpha=.5),weight="bold")
+        fig3.text(0.75, 0.8, 'Distance traveled: %s meters' % (calculateDistance(ratx,raty)), bbox=dict(facecolor='olive', alpha=.5),weight="bold")
         fig3.tight_layout()
 
         plt.show()
