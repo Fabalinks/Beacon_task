@@ -37,7 +37,7 @@ time_in_cylinder = 1.5
 circle = .15
 rotation = 80
 speed = .25
-movement_collection_time = .1
+movement_collection_time = .05
 save = True
 cylinder_visible= True
 
@@ -355,8 +355,8 @@ def main():
         fig3,ax1 = plt.subplots(1,3, figsize=(18, 9))
         ax1[0].hist2d(ratx, raty, bins=20,cmax=500)
         ax1[0].set(xlabel='X', ylabel='Y',title='movement histogram',)
-        ax1[1].hist2d(ratx, raty, bins=20,cmax=500)
-        ax1[1].plot(ratx,raty,alpha=.3,color='cyan')
+        ax1[1].hist2d(ratx, raty, bins=20,cmax=500,cmap='Oranges')
+        ax1[1].plot(ratx,raty,alpha=.4,color='cyan')
         ax1[1].set_ybound(upper=2)
         ax1[1].set(xlabel='X', ylabel='Y',title='Occupancy')
         ax1[2].plot(calculateSpeed(ratx,raty,movement_collection_time))
