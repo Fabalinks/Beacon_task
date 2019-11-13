@@ -21,6 +21,9 @@ import threading
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import axes3d, Axes3D
 import os
+from pypixxlib.propixx import PROPixx
+
+my_device = PROPixx()
 
 
 
@@ -40,6 +43,9 @@ speed = .25
 movement_collection_time = .05
 save = True
 cylinder_visible= True
+height_end=0.01
+height_start=0.821
+recording_interval = 6000
 
 
 
@@ -110,11 +116,13 @@ def main():
     cylinder.position.y = -.22
     cylinder.position.x =-0.15
     cylinder.position.z = -0.
+    cylinder.time_in_cylinder = time_in_cylinder
 
 
     meshes = [cylinder]
     virtual_scene = rc.Scene(meshes=meshes, light=light, camera=rat_camera, bgColor= background_color)  # seetign aset virtual scene to be projected as the mesh of the arena
     virtual_scene.gl_states.states = virtual_scene.gl_states.states[:-1]
+    virtual_scene.beg_of_recording = None
 
     # Make Cubemapping work on arena
     cube_texture = rc.TextureCube(width=4096, height=4096)  # usign cube mapping to import eh image on the texture of the arena
@@ -135,7 +143,22 @@ def main():
     arena.cumulative_in2 = 0
     sham_entry_duration_list = []
     sham_entry_timestamp_list = []
-    beg_of_recording = time.time()
+
+    #start recording
+    # if height_end < rat_rb.position.y <height_start:
+    #     beg_of_recording = time.time()
+    # if int(time.time())-beg_of_recording < recording_interval:
+    #     my_device.setLampLED(False)
+    # else:
+    #     my_device.setLampLED(True)
+    #
+    # if int(time.time())-beg_of_recording < recording_interval *2:
+    #     time_in_cylinder=1000 # or make the arena in refractory huge...
+    # else:
+    #     time_in_cylinder=1.5
+
+
+
 
     # starting description file
     time_stamp = strftime("%Y%m%d-%H%M%S")
@@ -156,6 +179,22 @@ def main():
     def in_hotspot():
         if not arena.in_hotspot_since:
             arena.in_hotspot_since = time.time()
+
+    def start_recording():
+        cylinder.visible = False
+        cylinder.time_in_cylinder = 1000
+        virtual_scene.beg_of_recording = time.time()
+
+        Timer(20, turn_lights_on).start()
+        Timer(40, start_beacon).start()
+
+    def turn_lights_on():
+        my_device.setLampLED(True)
+
+    def start_beacon():
+        make_cylinder_visible()
+        cylinder.time_in_cylinder = 1.5
+
 
     #ploting 3d movement
     ratx = []
@@ -193,6 +232,11 @@ def main():
 
 
     def update(dt):
+        if virtual_scene.beg_of_recording is None:
+            if height_end < rat_rb.position.y < height_start:
+                start_recording()
+            return
+
         """main update function: put any movement or tracking steps in here, because it will be run constantly!"""
         virtual_scene.camera.position.xyz = rat_rb.position
         arena.uniforms['playerPos'] = rat_rb.position
@@ -205,6 +249,7 @@ def main():
         sham_diff_position = np.array(rat_position) - np.array(sham_position)
         distance = linalg.norm(diff_position)
         sham_distance = linalg.norm(sham_diff_position)
+
 
         #print ("position x: %s" %cylinder.position_global[0])
         #print ("position y: %s" %cylinder.position_global[2])
@@ -222,7 +267,7 @@ def main():
             if arena.in_reward_zone_since > 0:
                 arena.cumulative_in += time.time() - arena.in_reward_zone_since
                 entry_duration_list.append(time.time() - arena.in_reward_zone_since)
-                entry_timestamp_list.append(time.time() - beg_of_recording)
+                entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
 
             arena.in_reward_zone_since = 0
 
@@ -234,14 +279,14 @@ def main():
             if arena.in_reward_zone_since2 > 0:
                 arena.cumulative_in2 += time.time() - arena.in_reward_zone_since2
                 sham_entry_duration_list.append(time.time() - arena.in_reward_zone_since2)
-                sham_entry_timestamp_list.append(time.time()- beg_of_recording)
+                sham_entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
 
             arena.in_reward_zone_since2 = 0
 
         if distance < circle and not arena.in_refractory:
             in_hotspot()
 
-            if time.time() - arena.in_hotspot_since > time_in_cylinder:
+            if time.time() - arena.in_hotspot_since > cylinder.time_in_cylinder:
                 cylinder.visible = False
                 feeder.write('f')
                 arena.feed_counts += 1
