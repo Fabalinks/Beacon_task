@@ -45,8 +45,7 @@ save = True
 cylinder_visible= True
 height_end=0.01
 height_start=0.821
-recording_interval = 6000
-
+my_device.setLampLED(False)
 
 
 
@@ -185,8 +184,8 @@ def main():
         cylinder.time_in_cylinder = 1000
         virtual_scene.beg_of_recording = time.time()
 
-        Timer(20, turn_lights_on).start()
-        Timer(40, start_beacon).start()
+        Timer(10, turn_lights_on).start()
+        Timer(20, start_beacon).start()
 
     def turn_lights_on():
         my_device.setLampLED(True)
