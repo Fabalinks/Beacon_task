@@ -46,6 +46,11 @@ cylinder_visible= True
 height_end=0.01
 height_start=0.821
 my_device.setLampLED(False)
+transition1 = 1
+transition2 = transition1*2
+xcylinder = 0.021457331
+ycylinder = -0.5530283
+alpha = 5
 
 
 
@@ -53,10 +58,10 @@ my_device.setLampLED(False)
 environment_color_filter = 1., 1., 1.
 
 # arena floor max size - random distribution
-x_diff = (0.37 + 0.22)
-x = np.random.random() * x_diff - 0.37
-z_diff = (0.59 + 1.02)
-z = np.random.random() * z_diff - 0.59
+x_diff = (0.37 + 0.22)-circle/2
+xn = np.random.random() * x_diff - 0.37
+z_diff = (0.59 + 1.02)-circle/2
+zn = np.random.random() * z_diff - 0.59
 
 
 def main():
@@ -113,8 +118,10 @@ def main():
     cylinder.uniforms['diffuse'] = cylinder_color
     cylinder.uniforms['flat_shading'] = flat_shading_on
     cylinder.position.y = -.22
-    cylinder.position.x =-0.15
-    cylinder.position.z = -0.
+    cylinder.position.z = xcylinder * np.cos(alpha) - ycylinder * np.sin(alpha)
+    cylinder.position.x = xcylinder * np.sin(alpha) + ycylinder * np.cos(alpha)
+    #cylinder.position.z = -0.5530283
+    #cylinder.position.x = 0.021457331
     cylinder.time_in_cylinder = time_in_cylinder
 
 
@@ -142,21 +149,7 @@ def main():
     arena.cumulative_in2 = 0
     sham_entry_duration_list = []
     sham_entry_timestamp_list = []
-
-    #start recording
-    # if height_end < rat_rb.position.y <height_start:
-    #     beg_of_recording = time.time()
-    # if int(time.time())-beg_of_recording < recording_interval:
-    #     my_device.setLampLED(False)
-    # else:
-    #     my_device.setLampLED(True)
-    #
-    # if int(time.time())-beg_of_recording < recording_interval *2:
-    #     time_in_cylinder=1000 # or make the arena in refractory huge...
-    # else:
-    #     time_in_cylinder=1.5
-
-
+    Beacon_position_and_time = []
 
 
     # starting description file
@@ -175,6 +168,10 @@ def main():
         cylinder.visible = cylinder_visible
         arena.in_refractory = False
 
+    def make_cylinder_invisible():
+        cylinder.visible = not cylinder_visible
+        arena.in_refractory = False
+
     def in_hotspot():
         if not arena.in_hotspot_since:
             arena.in_hotspot_since = time.time()
@@ -183,12 +180,14 @@ def main():
         cylinder.visible = False
         cylinder.time_in_cylinder = 1000
         virtual_scene.beg_of_recording = time.time()
+        print("Recording started on : %s \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
 
-        Timer(10, turn_lights_on).start()
-        Timer(20, start_beacon).start()
+        Timer(transition1, turn_lights_on).start()
+        Timer(transition2, start_beacon).start()
 
     def turn_lights_on():
         my_device.setLampLED(True)
+        return
 
     def start_beacon():
         make_cylinder_visible()
@@ -252,8 +251,9 @@ def main():
 
         #print ("position x: %s" %cylinder.position_global[0])
         #print ("position y: %s" %cylinder.position_global[2])
-        #print (rat_rb.position.x)
-        #print (rat_rb.position.z)
+        #print ("position x: %s" %rat_rb.position.x)
+        #print ("position y: %s" %rat_rb.position.z)
+
         #print(ratz)
 
 
@@ -277,6 +277,7 @@ def main():
         else:
             if arena.in_reward_zone_since2 > 0:
                 arena.cumulative_in2 += time.time() - arena.in_reward_zone_since2
+
                 sham_entry_duration_list.append(time.time() - arena.in_reward_zone_since2)
                 sham_entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
 
@@ -292,14 +293,25 @@ def main():
                 print("Feed counts: %s at %s total %0.2f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
 
                 f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
-                #z = np.random.random() * z_diff - 0.59
-                #x = np.random.random() * x_diff - 0.37
-                #cylinder.position.xz = x, z
-                #cylinder.position.y = -.1
+
+                if ((arena.feed_counts) % 2) == 0:
+                    zn = np.random.random() * z_diff - (z_diff / 2.)
+                    xn = np.random.random() * x_diff - (x_diff / 2.)
+
+                    x = xn * np.cos(np.pi * alpha / 180.) - zn * np.sin(np.pi * alpha / 180.)
+                    z = xn * np.sin(np.pi * alpha / 180.) + zn * np.cos(np.pi * alpha / 180.)
+                    cylinder.position.xz = x, z
+                    cylinder.position.y = -.1
+
+                    t1 = Timer(exposure_time, make_cylinder_visible)
+                    t1.start()
+                    print ("refractory" )
+                else:
+                    t1 = Timer(exposure_time, make_cylinder_invisible )
+                    t1.start()
+                    #cylinder.visible = False
 
 
-                t1 = Timer(exposure_time, make_cylinder_visible)
-                t1.start()
 
                 arena.in_refractory = True
 
