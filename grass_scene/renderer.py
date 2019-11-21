@@ -46,10 +46,11 @@ cylinder_visible= True
 height_end=0.01
 height_start=0.821
 my_device.setLampLED(False)
-transition1 = 1
+transition1 = 300
 transition2 = transition1*2
-xcylinder = 0.021457331
-ycylinder = -0.5530283
+#starting cylinder
+xcylinder = 0.0#0.021457331
+ycylinder = 0.0#-0.5530283
 alpha = 5
 
 
@@ -305,11 +306,14 @@ def main():
 
                     t1 = Timer(exposure_time, make_cylinder_visible)
                     t1.start()
-                    print ("refractory" )
+                    Beacon_position_and_time.append(cylinder_position)
+                    Beacon_position_and_time.append(time.time()-virtual_scene.beg_of_recording)
+
                 else:
                     t1 = Timer(exposure_time, make_cylinder_invisible )
                     t1.start()
-                    #cylinder.visible = False
+                    Beacon_position_and_time.append(cylinder_position)
+                    Beacon_position_and_time.append(time.time()-virtual_scene.beg_of_recording)
 
 
 
@@ -373,6 +377,7 @@ def main():
     def on_close():
 
         f.write("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
+        f.write("Animal beacon stay histogram: %s \r\n" % (Beacon_position_and_time))
         f.write("Animal beacon stay histogram: %s \r\n" % (entry_duration_list))
         f.write("Animal SHAM beacon stay histogram: %s \r\n" % (sham_entry_duration_list))
         f.write("Animals speed: %s \r\n" % (calculateSpeed(ratx,raty,movement_collection_time)))
