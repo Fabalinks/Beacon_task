@@ -46,11 +46,11 @@ cylinder_visible= True
 height_end=0.01
 height_start=0.821
 my_device.setLampLED(False)
-transition1 = 300
+transition1 = 1
 transition2 = transition1*2
 #starting cylinder
-xcylinder = 0.0#0.021457331
-ycylinder = 0.0#-0.5530283
+xcylinder = 0.021457331
+ycylinder = -0.5530283
 alpha = 5
 
 
@@ -296,13 +296,13 @@ def main():
                 f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
 
                 if ((arena.feed_counts) % 2) == 0:
-                    zn = np.random.random() * z_diff - (z_diff / 2.)
-                    xn = np.random.random() * x_diff - (x_diff / 2.)
+                    #zn = np.random.random() * z_diff - (z_diff / 2.)
+                    #xn = np.random.random() * x_diff - (x_diff / 2.)
 
-                    x = xn * np.cos(np.pi * alpha / 180.) - zn * np.sin(np.pi * alpha / 180.)
-                    z = xn * np.sin(np.pi * alpha / 180.) + zn * np.cos(np.pi * alpha / 180.)
-                    cylinder.position.xz = x, z
-                    cylinder.position.y = -.1
+                    #x = xn * np.cos(np.pi * alpha / 180.) - zn * np.sin(np.pi * alpha / 180.)
+                    #z = xn * np.sin(np.pi * alpha / 180.) + zn * np.cos(np.pi * alpha / 180.)
+                    #cylinder.position.xz = x, z
+                    #cylinder.position.y = -.1
 
                     t1 = Timer(exposure_time, make_cylinder_visible)
                     t1.start()
@@ -335,6 +335,13 @@ def main():
             cylinder.rotation.x +=rotation *dt
         if keys[key.D]:
             cylinder.rotation.z +=rotation *dt
+        if keys[key.C]:
+            cylinder.position.xz = 0.0,0.0
+        if keys[key.V]:
+            cylinder.visible = True
+        if keys[key.I]:
+            cylinder.visible = False
+
 
         # write position to the file
         time_since_last = time.time() - arena.timestamp
