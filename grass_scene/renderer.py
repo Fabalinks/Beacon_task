@@ -406,7 +406,7 @@ def main():
 
         #Plotting
         plt.style.use('ggplot')
-        fig,ax = plt.subplots(1,3, figsize=(18, 9),sharey=True,sharex = True)
+        fig,ax = plt.subplots(1,3, figsize=(18, 9),sharey=True)
         fig.text(0.21, 0.8, 'Number of pellets: %0.0f '% arena.feed_counts, bbox=dict(facecolor='yellow', alpha=.5), weight="bold")
         fig.text(0.50, 0.8, 'Time in beacon: %0.0f '% arena.cumulative_in, bbox=dict(facecolor='green', alpha=.5),weight="bold")
         fig.text(0.75, 0.8, 'Time in SHAM beacon: %0.0f '% arena.cumulative_in2, bbox=dict(facecolor='cyan', alpha=.5),weight="bold")
