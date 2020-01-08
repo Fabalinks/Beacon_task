@@ -40,14 +40,15 @@ time_in_cylinder = 1.5
 circle = .15
 rotation = 80
 speed = .25
-movement_collection_time = .05
+movement_collection_time = .01
 save = True
 cylinder_visible= True
 height_end=0.01
 height_start=0.821
 my_device.setLampLED(False)
-transition1 = 1
+transition1 = 60
 transition2 = transition1*2
+
 #starting cylinder
 xcylinder = 0.021457331
 ycylinder = -0.5530283
@@ -65,6 +66,7 @@ z_diff = (0.59 + 1.02)-circle/2
 zn = np.random.random() * z_diff - 0.59
 
 
+
 def main():
     # getting positions of rigid bodies in real time
     client = NatClient()
@@ -75,6 +77,7 @@ def main():
 
     # connect to feeder
     feeder = serial.Serial(feeder_port, 9600)
+
 
     # connect to actuators
     actuator = serial.Serial(actuator_port, 9600)
@@ -225,7 +228,6 @@ def main():
             speed.append(dist)
 
         return speed
-
 
 
 
@@ -383,6 +385,8 @@ def main():
     @window.event
     def on_close():
 
+
+
         f.write("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
         f.write("Animal beacon stay histogram: %s \r\n" % (Beacon_position_and_time))
         f.write("Animal beacon stay histogram: %s \r\n" % (entry_duration_list))
@@ -393,10 +397,16 @@ def main():
         print (entry_duration_list)
         print ("Animal traveled: %s meters" % (calculateDistance(ratx,raty)))
 
+            #Transformations
+
+        alpha = (5) * np.pi / 180
+        ratxX = (np.asarray(ratx)) * (np.cos(alpha)) - (np.asarray(raty)) * np.sin(alpha)
+        ratyY = (np.asarray(ratx)) * (np.sin(alpha)) + (np.asarray(raty)) * np.cos(alpha)
+
 
         #Plotting
         plt.style.use('ggplot')
-        fig,ax = plt.subplots(1,3, figsize=(18, 9))
+        fig,ax = plt.subplots(1,3, figsize=(18, 9),sharey=True,sharex = True)
         fig.text(0.21, 0.8, 'Number of pellets: %0.0f '% arena.feed_counts, bbox=dict(facecolor='yellow', alpha=.5), weight="bold")
         fig.text(0.50, 0.8, 'Time in beacon: %0.0f '% arena.cumulative_in, bbox=dict(facecolor='green', alpha=.5),weight="bold")
         fig.text(0.75, 0.8, 'Time in SHAM beacon: %0.0f '% arena.cumulative_in2, bbox=dict(facecolor='cyan', alpha=.5),weight="bold")
@@ -415,19 +425,19 @@ def main():
         ax = fig2.gca(projection='3d')
         ax = fig2.add_subplot(1, 1, 1, projection='3d')
         ax.set(xlabel='x_position', ylabel='Y-position',zlabel = 'Height',title='beacon stays')
-        ax.plot(ratx, raty, ratz,)
+        ax.plot(ratxX, ratyY, ratz,)
         ax.view_init(-65, 70)
 
         plt.show()
 
         fig3,ax1 = plt.subplots(1,3, figsize=(18, 9))
-        ax1[0].hist2d(ratx, raty, bins=20,cmax=500)
+        ax1[0].hist2d(ratxX, ratyY, bins=20,cmax=500)
         ax1[0].set(xlabel='X', ylabel='Y',title='movement histogram',)
-        ax1[1].hist2d(ratx, raty, bins=20,cmax=500,cmap='Oranges')
-        ax1[1].plot(ratx,raty,alpha=.4,color='cyan')
+        ax1[1].hist2d(ratxX, ratyY, bins=20,cmax=500,cmap='Oranges')
+        ax1[1].plot(ratxX,ratyY,alpha=.4,color='cyan')
         ax1[1].set_ybound(upper=2)
         ax1[1].set(xlabel='X', ylabel='Y',title='Occupancy')
-        ax1[2].plot(calculateSpeed(ratx,raty,movement_collection_time))
+        ax1[2].plot(calculateSpeed(ratxX,ratyY,movement_collection_time))
         ax1[2].set(xlabel='time', ylabel='speed',title='Velocity graph')
         fig3.text(0.75, 0.8, 'Distance traveled: %0.2f meters' % (calculateDistance(ratx,raty)), bbox=dict(facecolor='olive', alpha=.5),weight="bold")
         fig3.tight_layout()
