@@ -240,7 +240,7 @@ def main():
         arena.position, arena.rotation.xyzw = arena_rb.position, arena_rb.quaternion
         arena.position.y -= .02
         rat_position = rat_rb.position.x, rat_rb.position.z
-        cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
+        cylinder_position = cylinder.position.x, cylinder.position.z
         sham_position = 0.026124984,0.21062018
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         sham_diff_position = np.array(rat_position) - np.array(sham_position)
@@ -271,6 +271,9 @@ def main():
 
             arena.in_reward_zone_since = 0
 
+
+           #SHAM
+
         if sham_distance < circle:
             if not arena.in_reward_zone_since2:
                 arena.in_reward_zone_since2 = time.time()
@@ -293,7 +296,7 @@ def main():
                 arena.feed_counts += 1
                 print("Feed counts: %s at %s total %0.2f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
 
-                f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
+                f.write("Pellet # %d dispensed on %s real time: %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S"),time.time()))
                 if ((arena.feed_counts) % 10) == 0:
                     zn = np.random.random() * z_diff - (z_diff / 2.)
                     xn = np.random.random() * x_diff - (x_diff / 2.)
@@ -301,7 +304,7 @@ def main():
                     x = xn * np.cos(np.pi * alpha / 180.) - zn * np.sin(np.pi * alpha / 180.)
                     z = xn * np.sin(np.pi * alpha / 180.) + zn * np.cos(np.pi * alpha / 180.)
                     cylinder.position.xz = x, z
-                    cylinder.position.y = -.1
+                    #cylinder.position.y = -.1
 
                 if ((arena.feed_counts) % 2) == 0:
                     #zn = np.random.random() * z_diff - (z_diff / 2.)
@@ -315,13 +318,13 @@ def main():
                     t1 = Timer(exposure_time, make_cylinder_visible)
                     t1.start()
                     Beacon_position_and_time.append(cylinder_position)
-                    Beacon_position_and_time.append(time.time()-virtual_scene.beg_of_recording)
+                    Beacon_position_and_time.append(time.time())
 
                 else:
                     t1 = Timer(exposure_time, make_cylinder_invisible )
                     t1.start()
                     Beacon_position_and_time.append(cylinder_position)
-                    Beacon_position_and_time.append(time.time()-virtual_scene.beg_of_recording)
+                    Beacon_position_and_time.append(time.time())
 
 
 
