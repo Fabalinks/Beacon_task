@@ -253,7 +253,7 @@ def main():
         #print ("position y: %s" %cylinder.position_global[2])
         #print ("position x: %s" %rat_rb.position.x)
         #print ("position y: %s" %rat_rb.position.z)
-        #print(ratz)
+        #print(time.time()-arena.in_reward_zone_since)
 
 
         # counting time in reward zone - anytime
@@ -289,7 +289,7 @@ def main():
         if distance < circle and not arena.in_refractory:
             in_hotspot()
 
-            if time.time() - arena.in_hotspot_since > cylinder.time_in_cylinder:
+            if time.time() - arena.in_hotspot_since > cylinder.time_in_cylinder and time.time() - arena.in_reward_zone_since < 1.52:
                 cylinder.visible = False
                 feeder.write('f')
                 arena.feed_counts += 1
@@ -328,6 +328,8 @@ def main():
 
 
                 arena.in_refractory = True
+
+
 
         else:
             arena.in_hotspot_since = 0
