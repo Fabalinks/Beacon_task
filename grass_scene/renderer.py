@@ -46,7 +46,7 @@ cylinder_visible= True
 height_end=0.01
 height_start=0.821
 my_device.setLampLED(False)
-transition1 = 60
+transition1 = 1
 transition2 = transition1*2
 
 #starting cylinder
@@ -158,9 +158,10 @@ def main():
 
     # starting description file
     time_stamp = strftime("%Y%m%d-%H%M%S")
+    computer_time=time.time()
     f = open(" %s.txt" % time_stamp, "a+")
-    f.write("Recording started on : %s \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
-
+    f.write("Recording started on : %s  \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
+    f.write("Computer time was : %s  \r\n" % computer_time)
 
     #To be able to use keyes
 
@@ -186,6 +187,7 @@ def main():
         virtual_scene.beg_of_recording = time.time()
         print("Recording started on : %s \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
 
+
         Timer(transition1, turn_lights_on).start()
         Timer(transition2, start_beacon).start()
 
@@ -203,13 +205,7 @@ def main():
     raty = []
     ratz = []
 
-    # def ratD_track():
-    #     threading.Timer(movement_collection_time, ratD_track).start()
-    #     ratx.append(rat_rb.position.x)
-    #     raty.append(rat_rb.position.z)
-    #     ratz.append(rat_rb.position.y)
-    #
-    # ratD_track()
+
  #Calculating distance
     def calculateDistance(x,y):
         travel=0
@@ -252,16 +248,18 @@ def main():
         sham_distance = linalg.norm(sham_diff_position)
 
 
+        #For Troubleshooting
+
         #print ("position x: %s" %cylinder.position_global[0])
         #print ("position y: %s" %cylinder.position_global[2])
         #print ("position x: %s" %rat_rb.position.x)
         #print ("position y: %s" %rat_rb.position.z)
-
         #print(ratz)
 
 
         # counting time in reward zone - anytime
         if distance < circle:
+
             if not arena.in_reward_zone_since:
                 arena.in_reward_zone_since = time.time()
 
@@ -296,6 +294,14 @@ def main():
                 print("Feed counts: %s at %s total %0.2f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
 
                 f.write("Pellet # %d dispensed on %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S")))
+                if ((arena.feed_counts) % 10) == 0:
+                    zn = np.random.random() * z_diff - (z_diff / 2.)
+                    xn = np.random.random() * x_diff - (x_diff / 2.)
+
+                    x = xn * np.cos(np.pi * alpha / 180.) - zn * np.sin(np.pi * alpha / 180.)
+                    z = xn * np.sin(np.pi * alpha / 180.) + zn * np.cos(np.pi * alpha / 180.)
+                    cylinder.position.xz = x, z
+                    cylinder.position.y = -.1
 
                 if ((arena.feed_counts) % 2) == 0:
                     #zn = np.random.random() * z_diff - (z_diff / 2.)
