@@ -152,7 +152,6 @@ def main():
     entry_timestamp_list = []
     arena.cumulative_in2 = 0
     sham_entry_duration_list = []
-    sham_entry_timestamp_list = []
     Beacon_position_and_time = []
 
 
@@ -240,7 +239,7 @@ def main():
         arena.position, arena.rotation.xyzw = arena_rb.position, arena_rb.quaternion
         arena.position.y -= .02
         rat_position = rat_rb.position.x, rat_rb.position.z
-        cylinder_position = cylinder.position.x, cylinder.position.z
+        cylinder_position = cylinder.position_global[0], cylinder.position_global[2]
         sham_position = 0.026124984,0.21062018
         diff_position = np.array(rat_position) - np.array(cylinder_position)
         sham_diff_position = np.array(rat_position) - np.array(sham_position)
@@ -267,7 +266,7 @@ def main():
             if arena.in_reward_zone_since > 0:
                 arena.cumulative_in += time.time() - arena.in_reward_zone_since
                 entry_duration_list.append(time.time() - arena.in_reward_zone_since)
-                entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
+                entry_duration_list.append(time.time())
 
             arena.in_reward_zone_since = 0
 
@@ -283,7 +282,7 @@ def main():
                 arena.cumulative_in2 += time.time() - arena.in_reward_zone_since2
 
                 sham_entry_duration_list.append(time.time() - arena.in_reward_zone_since2)
-                sham_entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
+                sham_entry_duration_list.append(time.time())
 
             arena.in_reward_zone_since2 = 0
 
