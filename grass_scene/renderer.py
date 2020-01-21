@@ -155,6 +155,8 @@ def main():
     sham_entry_duration_list = []
     sham_entry_timestamp_list=[]
     Beacon_position_and_time = []
+    entry_duration_graph=[]
+    sham_entry_duration_graph=[]
 
 
     # starting description file
@@ -284,6 +286,7 @@ def main():
                 entry_duration_list.append(time.time() - arena.in_reward_zone_since)
                 entry_duration_list.append(time.time())
                 entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
+                entry_duration_graph.append((time.time() - arena.in_reward_zone_since))
 
 
             arena.in_reward_zone_since = 0
@@ -302,6 +305,8 @@ def main():
                 sham_entry_duration_list.append(time.time() - arena.in_reward_zone_since2)
                 sham_entry_duration_list.append(time.time())
                 sham_entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
+                sham_entry_duration_graph.append((time.time() - arena.in_reward_zone_since2))
+
             arena.in_reward_zone_since2 = 0
 
         if distance < circle and not arena.in_refractory:
