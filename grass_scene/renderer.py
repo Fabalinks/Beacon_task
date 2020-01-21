@@ -29,8 +29,9 @@ my_device = PROPixx()
 
 # Experiment parameters:
 fade=0. # 0-1 numbers only
+animal_ID = 'FS1'
 flat_shading_on = False
-background_color = (1., 1., 1.)
+background_color = (0., 0., 0.)
 cylinder_color = (1.+fade, 1.+fade, 1.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
@@ -117,7 +118,7 @@ def main():
 
 
 
-    cylinder = load_textured_mesh(arena_reader, 'Cylinder', 'dirt.png')
+    cylinder = load_textured_mesh(arena_reader, 'Cylinder', 'sky.png')
     cylinder.parent = arena
     cylinder.uniforms['diffuse'] = cylinder_color
     cylinder.uniforms['flat_shading'] = flat_shading_on
@@ -152,15 +153,26 @@ def main():
     entry_timestamp_list = []
     arena.cumulative_in2 = 0
     sham_entry_duration_list = []
+    sham_entry_timestamp_list=[]
     Beacon_position_and_time = []
 
 
     # starting description file
     time_stamp = strftime("%Y%m%d-%H%M%S")
     computer_time=time.time()
-    f = open(" %s.txt" % time_stamp, "a+")
+    f = open("live %s.txt" % time_stamp, "a+")
     f.write("Recording started on : %s  \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
     f.write("Computer time was : %s  \r\n" % computer_time)
+
+    with open("metadata %s.txt" % time_stamp, "a+") as f_meta:
+        f_meta.write("Recording started on : %s  \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
+        f_meta.write ("Computer time was : %s  \r\n" % computer_time)
+        f_meta.write ("exposure time : %s  \r\n" % exposure_time)
+        f_meta.write ("time_in_cylinder : %s  \r\n" % time_in_cylinder)
+        f_meta.write ("movement_collection_time : %s  \r\n" % movement_collection_time)
+        f_meta.write ("animal_ID : %s  \r\n" % animal_ID)
+
+
 
     #To be able to use keyes
 
@@ -192,6 +204,10 @@ def main():
 
     def turn_lights_on():
         my_device.setLampLED(True)
+        return
+
+    def turn_lights_off():
+        my_device.setLampLED(False)
         return
 
     def start_beacon():
@@ -267,6 +283,8 @@ def main():
                 arena.cumulative_in += time.time() - arena.in_reward_zone_since
                 entry_duration_list.append(time.time() - arena.in_reward_zone_since)
                 entry_duration_list.append(time.time())
+                entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
+
 
             arena.in_reward_zone_since = 0
 
@@ -283,20 +301,20 @@ def main():
 
                 sham_entry_duration_list.append(time.time() - arena.in_reward_zone_since2)
                 sham_entry_duration_list.append(time.time())
-
+                sham_entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
             arena.in_reward_zone_since2 = 0
 
         if distance < circle and not arena.in_refractory:
             in_hotspot()
 
-            if time.time() - arena.in_hotspot_since > cylinder.time_in_cylinder and time.time() - arena.in_reward_zone_since < 1.52:
+            if time.time() - arena.in_hotspot_since > cylinder.time_in_cylinder and time.time() - arena.in_reward_zone_since < cylinder.time_in_cylinder +.02:
                 cylinder.visible = False
                 feeder.write('f')
                 arena.feed_counts += 1
                 print("Feed counts: %s at %s total %0.2f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
 
                 f.write("Pellet # %d dispensed on %s real time: %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S"),time.time()))
-                if ((arena.feed_counts) % 10) == 0:
+                if ((arena.feed_counts) % 6) == 0:
                     zn = np.random.random() * z_diff - (z_diff / 2.)
                     xn = np.random.random() * x_diff - (x_diff / 2.)
 
@@ -315,14 +333,16 @@ def main():
                     #cylinder.position.y = -.1
 
                     t1 = Timer(exposure_time, make_cylinder_visible)
+                    turn_lights_on()
                     t1.start()
-                    Beacon_position_and_time.append(cylinder_position)
+                    Beacon_position_and_time.append(cylinder.position.xz)
                     Beacon_position_and_time.append(time.time())
 
                 else:
                     t1 = Timer(exposure_time, make_cylinder_invisible )
+                    turn_lights_off()
                     t1.start()
-                    Beacon_position_and_time.append(cylinder_position)
+                    Beacon_position_and_time.append(cylinder.position.xz)
                     Beacon_position_and_time.append(time.time())
 
 
@@ -398,10 +418,10 @@ def main():
 
 
         f.write("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
-        f.write("Animal beacon stay histogram: %s \r\n" % (Beacon_position_and_time))
-        f.write("Animal beacon stay histogram: %s \r\n" % (entry_duration_list))
-        f.write("Animal SHAM beacon stay histogram: %s \r\n" % (sham_entry_duration_list))
-        f.write("Animals speed: %s \r\n" % (calculateSpeed(ratx,raty,movement_collection_time)))
+        f.write("Animal beacon stay histogram: %s \r\n\n" % (Beacon_position_and_time))
+        f.write("Animal beacon stay histogram: %s \r\n\n" % (entry_duration_list))
+        f.write("Animal SHAM beacon stay histogram: %s \r\n\n" % (sham_entry_duration_list))
+        f.write("Animals speed: %s \r\n\n" % (calculateSpeed(ratx,raty,movement_collection_time)))
 
         print("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
         print (entry_duration_list)
@@ -419,9 +439,11 @@ def main():
         fig,ax = plt.subplots(1,2, figsize=(18, 9),sharey=True,sharex=True)
         fig.text(0.30, 0.8, 'Time in beacon: %0.0f '% arena.cumulative_in, bbox=dict(facecolor='green', alpha=.5),weight="bold")
         fig.text(0.75, 0.8, 'Time in SHAM beacon: %0.0f '% arena.cumulative_in2, bbox=dict(facecolor='cyan', alpha=.5),weight="bold")
-        ax[0].hist(entry_duration_list, bins = 20,color='olive')
+        ax[0].hist(entry_timestamp_list, bins = 20,color='olive')
         ax[0].set(xlabel='time (s)', ylabel='frequency',title='beacon stays')
-        ax[1].hist(sham_entry_duration_list, bins = 20,color='teal')
+        ax[0].set_yscale('log')
+        ax[1].hist(sham_entry_timestamp_list, bins = 20,color='teal')
+        ax[1].set_yscale('log')
         ax[1].set(xlabel='time (s)', ylabel='frequency',title='SHAM beacon stays')
 
         fig.canvas.set_window_title('Beacon stays')
