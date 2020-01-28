@@ -319,6 +319,9 @@ def main():
                 print("Feed counts: %s at %s total %0.2f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
 
                 f.write("Pellet # %d dispensed on %s real time: %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S"),time.time()))
+                with open("beacons %s.txt" % time_stamp, "a+") as f_beacon:
+                    f_beacon.write( time.time(),cylinder.position.xz)
+
                 if ((arena.feed_counts) % 6) == 0:
                     zn = np.random.random() * z_diff - (z_diff / 2.)
                     xn = np.random.random() * x_diff - (x_diff / 2.)
@@ -444,10 +447,10 @@ def main():
         fig,ax = plt.subplots(1,2, figsize=(18, 9),sharey=True,sharex=True)
         fig.text(0.30, 0.8, 'Time in beacon: %0.0f '% arena.cumulative_in, bbox=dict(facecolor='green', alpha=.5),weight="bold")
         fig.text(0.75, 0.8, 'Time in SHAM beacon: %0.0f '% arena.cumulative_in2, bbox=dict(facecolor='cyan', alpha=.5),weight="bold")
-        ax[0].hist(entry_timestamp_list, bins = 20,color='olive')
+        ax[0].hist(entry_duration_graph, bins = 20,color='olive')
         ax[0].set(xlabel='time (s)', ylabel='frequency',title='beacon stays')
         ax[0].set_yscale('log')
-        ax[1].hist(sham_entry_timestamp_list, bins = 20,color='teal')
+        ax[1].hist(sham_entry_duration_graph, bins = 20,color='teal')
         ax[1].set_yscale('log')
         ax[1].set(xlabel='time (s)', ylabel='frequency',title='SHAM beacon stays')
 
