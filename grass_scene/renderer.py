@@ -287,6 +287,9 @@ def main():
                 entry_duration_list.append(time.time())
                 entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
                 entry_duration_graph.append((time.time() - arena.in_reward_zone_since))
+                with open("beacon_entry %s.txt" % time_stamp, "a+") as f_beacon_entry:
+                    x, y, z = rat_rb.position
+                    f_beacon_entry.write("%s %s %s %s %s %s %s\n" % (time.time(), x, y, z,cylinder.position.x,cylinder.position.z,time.time() - arena.in_reward_zone_since))
 
 
             arena.in_reward_zone_since = 0
@@ -307,6 +310,10 @@ def main():
                 sham_entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
                 sham_entry_duration_graph.append((time.time() - arena.in_reward_zone_since2))
 
+            with open("sham_beacon_entry %s.txt" % time_stamp, "a+") as f_sham_beacon_entry:
+                    x, y, z = rat_rb.position
+                    f_sham_beacon_entry.write("%s %s %s %s %s %s %s\n" % (time.time(), x, y, z,sham_position[0],sham_position[1],time.time()- arena.in_reward_zone_since2))
+
             arena.in_reward_zone_since2 = 0
 
         if distance < circle and not arena.in_refractory:
@@ -320,9 +327,11 @@ def main():
 
                 f.write("Pellet # %d dispensed on %s real time: %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S"),time.time()))
                 with open("beacons %s.txt" % time_stamp, "a+") as f_beacon:
-                    f_beacon.write( time.time(),cylinder.position.xz)
+                    x, y, z = rat_rb.position
+                    f_beacon.write("%s %s %s %s %s %s\n" % (time.time(), x, y, z,cylinder.position.x,cylinder.position.z))
 
-                if ((arena.feed_counts) % 6) == 0:
+
+                if ((arena.feed_counts) % 2) == 0:
                     zn = np.random.random() * z_diff - (z_diff / 2.)
                     xn = np.random.random() * x_diff - (x_diff / 2.)
 
@@ -330,6 +339,11 @@ def main():
                     z = xn * np.sin(np.pi * alpha / 180.) + zn * np.cos(np.pi * alpha / 180.)
                     cylinder.position.xz = x, z
                     #cylinder.position.y = -.1
+
+                    x = xn * np.cos(np.pi * alpha / 180.) - zn * np.sin(np.pi * alpha / 180.)
+                    z = xn * np.sin(np.pi * alpha / 180.) + zn * np.cos(np.pi * alpha / 180.)
+                    sham_position[0] = x
+                    sham_position[1]= z
 
                 if ((arena.feed_counts) % 2) == 0:
                     #zn = np.random.random() * z_diff - (z_diff / 2.)
@@ -398,6 +412,7 @@ def main():
 
             arena.timestamp = time.time()
 
+       # print(arena.position.xz)
 
     pyglet.clock.schedule(update)  # making it so that the app updates in real time
 
