@@ -23,6 +23,9 @@ from mpl_toolkits.mplot3d import axes3d, Axes3D
 import os
 from pypixxlib.propixx import PROPixx
 
+
+
+
 my_device = PROPixx()
 
 
@@ -32,7 +35,7 @@ fade=0. # 0-1 numbers only
 animal_ID = 'FS1'
 flat_shading_on = False
 background_color = (0., 0., 0.)
-cylinder_color = (1.+fade, 1.+fade, 1.+fade)
+cylinder_color = (0.+fade, .7+fade, 0.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
 actuator_port = 'COM7'
@@ -118,7 +121,7 @@ def main():
 
 
 
-    cylinder = load_textured_mesh(arena_reader, 'Cylinder', 'sky.png')
+    cylinder = load_textured_mesh(arena_reader, 'Cylinder')
     cylinder.parent = arena
     cylinder.uniforms['diffuse'] = cylinder_color
     cylinder.uniforms['flat_shading'] = flat_shading_on
@@ -309,10 +312,10 @@ def main():
                 sham_entry_duration_list.append(time.time())
                 sham_entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
                 sham_entry_duration_graph.append((time.time() - arena.in_reward_zone_since2))
-
-            with open("sham_beacon_entry %s.txt" % time_stamp, "a+") as f_sham_beacon_entry:
-                    x, y, z = rat_rb.position
-                    f_sham_beacon_entry.write("%s %s %s %s %s %s %s\n" % (time.time(), x, y, z,sham_position[0],sham_position[1],time.time()- arena.in_reward_zone_since2))
+#TOFIX
+            #with open("sham_beacon_entry %s.txt" % time_stamp, "a+") as f_sham_beacon_entry:
+             #       x, y, z = rat_rb.position
+              #      f_sham_beacon_entry.write("%s %s %s %s %s %s %s\n" % (time.time(), x, y, z,sham_position[0],sham_position[1],time.time()- arena.in_reward_zone_since2))
 
             arena.in_reward_zone_since2 = 0
 
@@ -331,7 +334,7 @@ def main():
                     f_beacon.write("%s %s %s %s %s %s\n" % (time.time(), x, y, z,cylinder.position.x,cylinder.position.z))
 
 
-                if ((arena.feed_counts) % 2) == 0:
+                if ((arena.feed_counts) % 4) == 0:
                     zn = np.random.random() * z_diff - (z_diff / 2.)
                     xn = np.random.random() * x_diff - (x_diff / 2.)
 
@@ -339,11 +342,11 @@ def main():
                     z = xn * np.sin(np.pi * alpha / 180.) + zn * np.cos(np.pi * alpha / 180.)
                     cylinder.position.xz = x, z
                     #cylinder.position.y = -.1
+#TOFIX
+                   # x = xn * np.cos(np.pi * alpha / 180.) - zn * np.sin(np.pi * alpha / 180.)
+                    #z = xn * np.sin(np.pi * alpha / 180.) + zn * np.cos(np.pi * alpha / 180.)
+                    #sham_position = x,z
 
-                    x = xn * np.cos(np.pi * alpha / 180.) - zn * np.sin(np.pi * alpha / 180.)
-                    z = xn * np.sin(np.pi * alpha / 180.) + zn * np.cos(np.pi * alpha / 180.)
-                    sham_position[0] = x
-                    sham_position[1]= z
 
                 if ((arena.feed_counts) % 2) == 0:
                     #zn = np.random.random() * z_diff - (z_diff / 2.)
@@ -495,12 +498,24 @@ def main():
 
         plt.show()
 
+
+        script_dir = os.path.dirname(__file__)
+        results_dir = os.path.join(script_dir, 'Graphs/')
+
+        if not os.path.isdir(results_dir):
+            os.makedirs(results_dir)
+
+        print(script_dir,results_dir)
+
+
         #To save or not?
         if save == True:
-            fig.savefig('hist_%s ' % time_stamp)
-            fig2.savefig('3D_%s ' % time_stamp)
-            fig3.savefig('2Dhist_%s ' % time_stamp)
+
+            fig.savefig(results_dir + "hist_%s"  % time_stamp)
+            fig2.savefig(results_dir + "3D_%s"  % time_stamp)
+            fig3.savefig(results_dir + "2Dhist_%s"  % time_stamp)
             #os.remove(" %s.txt" % strftime("%Y%m%d-%H%M%S"))
+
 
 
 
