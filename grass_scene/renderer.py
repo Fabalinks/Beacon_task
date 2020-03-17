@@ -499,13 +499,11 @@ def main():
         plt.show()
 
 
-        script_dir = os.path.dirname(__file__)
-        results_dir = os.path.join(script_dir, 'Graphs/')
+        script_dir = os.path.dirname(os.path.dirname(__file__))
+        results_dir = os.path.join(script_dir, 'Graphs_%s/' % time_stamp)
 
         if not os.path.isdir(results_dir):
             os.makedirs(results_dir)
-
-        print(script_dir,results_dir)
 
 
         #To save or not?
