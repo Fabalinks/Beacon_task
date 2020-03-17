@@ -77,7 +77,6 @@ def main():
     arena_rb = client.rigid_bodies['Arena']
     rat_rb = client.rigid_bodies['Rat']
 
-    #create text file to include metadata
 
     # connect to feeder
     feeder = serial.Serial(feeder_port, 9600)
@@ -164,12 +163,18 @@ def main():
 
     # starting description file
     time_stamp = strftime("%Y%m%d-%H%M%S")
-    computer_time=time.time()
-    f = open("live %s.txt" % time_stamp, "a+")
-    f.write("Recording started on : %s  \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
-    f.write("Computer time was : %s  \r\n" % computer_time)
+    script_dir = os.path.dirname(os.path.dirname(__file__))
+    results_dir = os.path.join(script_dir, 'Positions_%s/' % time_stamp)
 
-    with open("metadata %s.txt" % time_stamp, "a+") as f_meta:
+    if not os.path.isdir(results_dir):
+        os.makedirs(results_dir)
+
+
+
+    computer_time=time.time()
+
+
+    with open(results_dir +"metadata_%s.txt" % time_stamp, "a+") as f_meta:
         f_meta.write("Recording started on : %s  \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
         f_meta.write ("Computer time was : %s  \r\n" % computer_time)
         f_meta.write ("exposure time : %s  \r\n" % exposure_time)
@@ -268,6 +273,12 @@ def main():
         sham_distance = linalg.norm(sham_diff_position)
 
 
+
+
+
+
+
+
         #For Troubleshooting
 
         #print ("position x: %s" %cylinder.position_global[0])
@@ -290,7 +301,7 @@ def main():
                 entry_duration_list.append(time.time())
                 entry_timestamp_list.append(time.time() - virtual_scene.beg_of_recording)
                 entry_duration_graph.append((time.time() - arena.in_reward_zone_since))
-                with open("beacon_entry %s.txt" % time_stamp, "a+") as f_beacon_entry:
+                with open(results_dir + "beacon_entry_%s.txt" % time_stamp, "a+") as f_beacon_entry:
                     x, y, z = rat_rb.position
                     f_beacon_entry.write("%s %s %s %s %s %s %s\n" % (time.time(), x, y, z,cylinder.position.x,cylinder.position.z,time.time() - arena.in_reward_zone_since))
 
@@ -328,8 +339,10 @@ def main():
                 arena.feed_counts += 1
                 print("Feed counts: %s at %s total %0.2f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
 
-                f.write("Pellet # %d dispensed on %s real time: %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S"),time.time()))
-                with open("beacons %s.txt" % time_stamp, "a+") as f_beacon:
+                with open(results_dir +"metadata_%s.txt" % time_stamp, "a+") as f_meta:
+                    f_meta.write("Pellet # %d dispensed on %s real time: %s \r\n" % (arena.feed_counts, strftime("%H:%M:%S"),time.time()))
+
+                with open(results_dir + "beacons_%s.txt" % time_stamp, "a+") as f_beacon:
                     x, y, z = rat_rb.position
                     f_beacon.write("%s %s %s %s %s %s\n" % (time.time(), x, y, z,cylinder.position.x,cylinder.position.z))
 
@@ -401,10 +414,11 @@ def main():
 
 
         # write position to the file
+
         time_since_last = time.time() - arena.timestamp
         if movement_collection_time < time_since_last:
 
-            with open("position %s.txt" % time_stamp, "a+") as f_pos:
+            with open(results_dir + "position_%s.txt" % time_stamp, "a+") as f_pos:
                 x, y, z = rat_rb.position
                 f_pos.write("%s %s %s %s\n" % (time.time(), x, y, z))
 
@@ -443,11 +457,11 @@ def main():
 
 
 
-        f.write("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
-        f.write("Animal beacon stay histogram: %s \r\n\n" % (Beacon_position_and_time))
-        f.write("Animal beacon stay histogram: %s \r\n\n" % (entry_duration_list))
-        f.write("Animal SHAM beacon stay histogram: %s \r\n\n" % (sham_entry_duration_list))
-        f.write("Animals speed: %s \r\n\n" % (calculateSpeed(ratx,raty,movement_collection_time)))
+        #f_meta.write("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
+        #f_meta.write("Animal beacon stay histogram: %s \r\n\n" % (Beacon_position_and_time))
+        #f_meta.write("Animal beacon stay histogram: %s \r\n\n" % (entry_duration_list))
+        #f_meta.write("Animal SHAM beacon stay histogram: %s \r\n\n" % (sham_entry_duration_list))
+        #f_meta.write("Animals speed: %s \r\n\n" % (calculateSpeed(ratx,raty,movement_collection_time)))
 
         print("Animal dispensed: %s pellets, spent %0.2f seconds in the reward zone and %0.2f in SHAM \r\n" % (arena.feed_counts,arena.cumulative_in,arena.cumulative_in2))
         print (entry_duration_list)
@@ -497,6 +511,8 @@ def main():
         fig3.tight_layout()
 
         plt.show()
+
+        #saving in subfile
 
 
         script_dir = os.path.dirname(os.path.dirname(__file__))
