@@ -48,7 +48,7 @@ rotation = 80
 speed = .25
 movement_collection_time = .01
 
-save = not True
+save = not False
 
 cylinder_visible= True
 height_end=0.01
