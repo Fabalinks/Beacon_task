@@ -54,6 +54,7 @@ cylinder_visible= True
 height_end=0.01
 height_start=0.821
 my_device.setLampLED(False)
+my_device.setLedIntensity('6.25')
 transition1 = 1
 transition2 = transition1*2
 
@@ -487,10 +488,6 @@ def main():
         speed = calculateSpeed(ratxX,ratyY,movement_collection_time)
         distance = calculateDistance(ratx,raty)
         fig3 = plot3(ratxX,ratyY,speed,entry_timestamp_list,arena.feed_counts,distance)
-
-
-
-
 
 
         script_dir = os.path.dirname(os.path.dirname(__file__))
