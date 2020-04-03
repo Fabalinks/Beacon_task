@@ -23,7 +23,7 @@ from mpl_toolkits.mplot3d import axes3d, Axes3D
 import os
 from pypixxlib.propixx import PROPixx
 from plot import plot1, plot2, plot3
-
+import pyglet.media as media
 
 
 
@@ -76,12 +76,24 @@ zn = np.random.random() * z_diff - 0.59
 
 
 
+_ROOT = os.path.abspath(os.path.dirname(__file__))
+sounds_path = os.path.join(_ROOT, '..', 'assets', 'sounds')
+click_sound = os.path.join(sounds_path, 'click.wav')
+umgawa_sound = os.path.join(sounds_path, 'umgawa.wav')
+
+
+
+
 def main():
     # getting positions of rigid bodies in real time
     client = NatClient()
     arena_rb = client.rigid_bodies['Arena']
     rat_rb = client.rigid_bodies['Rat']
 
+
+    noise = media.StaticSource(media.load(click_sound))
+    # adsr = procedural.ADSREnvelope(0.05,.2,.1)
+    # noise = procedural.ProceduralSourceclick_sound(2.0).play()
 
     # connect to feeder
     feeder = serial.Serial(feeder_port, 9600)
@@ -341,6 +353,7 @@ def main():
             if time.time() - arena.in_hotspot_since > cylinder.time_in_cylinder and time.time() - arena.in_reward_zone_since < cylinder.time_in_cylinder +.02:
                 cylinder.visible = False
                 feeder.write('f')
+                noise.play()
                 arena.feed_counts += 1
                 print("Feed counts: %s at %s total %0.2f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
 
