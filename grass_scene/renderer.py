@@ -34,8 +34,8 @@ my_device = PROPixx()
 
 # Experiment parameters:
 fade=0. # 0-1 numbers only
-animal_ID = 'FS1'
-flat_shading_on = False
+animal_ID = '00938'
+flat_shading = False
 background_color = (0., 0., 0.)
 cylinder_color = (0.+fade, .7+fade, 0.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
@@ -47,6 +47,8 @@ circle = .15
 rotation = 80
 speed = .25
 movement_collection_time = .01
+position_change = 1000  # set to high number so never change
+light_off = 1000 ## set to high number so never change
 
 save = not False
 
@@ -92,8 +94,7 @@ def main():
 
 
     noise = media.StaticSource(media.load(click_sound))
-    # adsr = procedural.ADSREnvelope(0.05,.2,.1)
-    # noise = procedural.ProceduralSourceclick_sound(2.0).play()
+
 
     # connect to feeder
     feeder = serial.Serial(feeder_port, 9600)
@@ -122,25 +123,11 @@ def main():
     rat_head_position = rat_rb.position
     rat_camera = rc.Camera(projection=cube_mapping_projection, position=rat_head_position)
 
-    #plane = arena_reader.get_mesh("Plane")
-    #plane = load_textured_mesh(arena_reader, 'Plane', 'sawdust.jpg')
-    #plane.parent = arena
-    #plane.uniforms['diffuse'] = cylinder_color
-    #plane.uniforms['flat_shading'] = flat_shading_on
-
-    #sky = arena_reader.get_mesh("Sky")
-    #sky = load_textured_mesh(arena_reader, 'Sky', 'sky.png')
-    #sky.parent = arena
-    #sky.uniforms['diffuse'] = cylinder_color
-    #sky.uniforms['flat_shading'] = flat_shading_on
-
-
-
 
     cylinder = load_textured_mesh(arena_reader, 'Cylinder')
     cylinder.parent = arena
     cylinder.uniforms['diffuse'] = cylinder_color
-    cylinder.uniforms['flat_shading'] = flat_shading_on
+    cylinder.uniforms['flat_shading'] = flat_shading
     cylinder.position.y = -.22
     cylinder.position.z = xcylinder * np.cos(alpha) - ycylinder * np.sin(alpha)
     cylinder.position.x = xcylinder * np.sin(alpha) + ycylinder * np.cos(alpha)
@@ -365,7 +352,7 @@ def main():
                     f_beacon.write("%s %s %s %s %s %s\n" % (time.time(), x, y, z,cylinder.position.x,cylinder.position.z))
 
 
-                if ((arena.feed_counts) % 4) == 0:
+                if ((arena.feed_counts) % position_change) == 0:
                     zn = np.random.random() * z_diff - (z_diff / 2.)
                     xn = np.random.random() * x_diff - (x_diff / 2.)
 
@@ -379,7 +366,7 @@ def main():
                     #sham_position = x,z
 
 
-                if ((arena.feed_counts) % 2) == 0:
+                if ((arena.feed_counts) % light_off) == 0:
                     #zn = np.random.random() * z_diff - (z_diff / 2.)
                     #xn = np.random.random() * x_diff - (x_diff / 2.)
 
@@ -395,8 +382,8 @@ def main():
                     Beacon_position_and_time.append(time.time())
 
                 else:
-                    t1 = Timer(exposure_time, make_cylinder_invisible )
-                    turn_lights_off()
+                    t1 = Timer(exposure_time, make_cylinder_visible ) # made visible all time and keep lights on
+                    #turn_lights_off()
                     t1.start()
                     Beacon_position_and_time.append(cylinder.position.xz)
                     Beacon_position_and_time.append(time.time())
