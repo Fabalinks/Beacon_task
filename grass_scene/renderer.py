@@ -42,7 +42,7 @@ arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and 
 feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 1.5
-time_in_cylinder = 1.5
+time_in_cylinder = 1
 circle = .075 # r in meters not diameter
 rotation = 80
 speed = .25
@@ -70,7 +70,7 @@ alpha = 5
 # Parameters never to change:
 environment_color_filter = 1., 1., 1.
 
-# arena floor max size - random distribution
+# arena floor max size - random distribution - circle to not have the beacon in the edge where not reachable.
 x_diff = (0.37 + 0.22)-circle/2
 xn = np.random.random() * x_diff - 0.37
 z_diff = (0.59 + 1.02)-circle/2
