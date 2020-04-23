@@ -35,7 +35,7 @@ my_device = PROPixx()
 # Experiment parameters:
 fade=0. # 0-1 numbers only
 animal_ID = '00938'
-flat_shading = False
+flat_shading = True
 background_color = (0., 0., 0.)
 cylinder_color = (0.+fade, .7+fade, 0.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
@@ -43,7 +43,7 @@ feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 1.5
 time_in_cylinder = 1.5
-circle = .15
+circle = .075 # r in meters not diameter
 rotation = 80
 speed = .25
 movement_collection_time = .01
@@ -124,11 +124,11 @@ def main():
     rat_camera = rc.Camera(projection=cube_mapping_projection, position=rat_head_position)
 
 
-    cylinder = load_textured_mesh(arena_reader, 'Cylinder')
+    cylinder = load_textured_mesh(arena_reader, 'Cylinder','dirt.png')
     cylinder.parent = arena
-    cylinder.uniforms['diffuse'] = cylinder_color
+    cylinder.uniforms['diffuse'] = 1., 1., 1.
     cylinder.uniforms['flat_shading'] = flat_shading
-    cylinder.position.y = -.22
+   #cylinder.position.y = -.22
     cylinder.position.z = xcylinder * np.cos(alpha) - ycylinder * np.sin(alpha)
     cylinder.position.x = xcylinder * np.sin(alpha) + ycylinder * np.cos(alpha)
     #cylinder.position.z = -0.5530283
@@ -403,9 +403,9 @@ def main():
         if keys[key.RIGHT]:
             cylinder.position.x += speed*dt
         if keys[key.UP]:
-            cylinder.position.z -= speed*dt
+            cylinder.position.y -= speed*dt
         if keys[key.DOWN]:
-            cylinder.position.z += speed*dt
+            cylinder.position.y += speed*dt
         if keys[key.A]:
             cylinder.rotation.x +=rotation *dt
         if keys[key.D]:
