@@ -425,7 +425,8 @@ def main():
 
             with open(results_dir + "position_%s.txt" % time_stamp, "a+") as f_pos:
                 x, y, z = rat_rb.position
-                f_pos.write("%s %s %s %s\n" % (time.time(), x, y, z))
+                r1,r2,r3 = rat_rb.rotation
+                f_pos.write("%s %s %s %s %s %s %s\n" % (time.time(), x, y, z, r1, r2, r3,))
 
                 ratx.append(rat_rb.position.x)
                 raty.append(rat_rb.position.z)
