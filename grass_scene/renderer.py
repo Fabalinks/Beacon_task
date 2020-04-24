@@ -36,13 +36,13 @@ my_device = PROPixx()
 fade=0. # 0-1 numbers only
 animal_ID = '00938'
 flat_shading = True
-background_color = (.5, .5, .5)
+background_color = (.3, .3, .3)
 cylinder_color = (0.+fade, .7+fade, 0.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 1.5
-time_in_cylinder = .5
+time_in_cylinder = .2
 circle = .075 # r in meters not diameter
 rotation = 80
 speed = .25
@@ -226,7 +226,7 @@ def main():
 
     def start_beacon():
         make_cylinder_visible()
-        cylinder.time_in_cylinder = 1.5
+        cylinder.time_in_cylinder = time_in_cylinder
 
 
     #ploting 3d movement
@@ -342,6 +342,8 @@ def main():
                 feeder.write('f')
                 noise.play()
                 arena.feed_counts += 1
+                t1 = Timer(exposure_time, make_cylinder_visible) # to make cylinder invisible for 1.5 seconds as refractory period time so the rat cannot keep coming back - needs to leave for 1.5 seconds at least
+                t1.start()
                 print("Feed counts: %s at %s total %0.2f " % (arena.feed_counts, strftime("%H:%M:%S"), (time.time() - arena.in_reward_zone_since) + arena.cumulative_in))
 
                 with open(results_dir +"metadata_%s.txt" % time_stamp, "a+") as f_meta:
@@ -364,6 +366,7 @@ def main():
                    # x = xn * np.cos(np.pi * alpha / 180.) - zn * np.sin(np.pi * alpha / 180.)
                     #z = xn * np.sin(np.pi * alpha / 180.) + zn * np.cos(np.pi * alpha / 180.)
                     #sham_position = x,z
+
 
 
                 if ((arena.feed_counts) % light_off) == 0:
