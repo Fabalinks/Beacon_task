@@ -36,13 +36,13 @@ my_device = PROPixx()
 fade=0. # 0-1 numbers only
 animal_ID = '00938'
 flat_shading = True
-background_color = (0., 0., 0.)
+background_color = (.5, .5, .5)
 cylinder_color = (0.+fade, .7+fade, 0.+fade)
 arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and flipped normals in file
 feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 1.5
-time_in_cylinder = 1
+time_in_cylinder = .5
 circle = .075 # r in meters not diameter
 rotation = 80
 speed = .25
@@ -416,7 +416,12 @@ def main():
             cylinder.visible = True
         if keys[key.I]:
             cylinder.visible = False
-
+        if keys[key.P]:
+            feeder.write('f')
+        if keys[key.L]:
+            turn_lights_on()
+        if keys[key.K]:
+            turn_lights_off()
 
         # write position to the file
 
@@ -431,6 +436,7 @@ def main():
                 ratx.append(rat_rb.position.x)
                 raty.append(rat_rb.position.z)
                 ratz.append(rat_rb.position.y)
+
 
 
             arena.timestamp = time.time()
