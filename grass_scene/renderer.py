@@ -42,13 +42,15 @@ arena_filename = 'assets/3D/beacon_scene.obj'  # note: make sure UV mapping and 
 feeder_port = 'COM12'
 actuator_port = 'COM7'
 exposure_time = 1.5
-time_in_cylinder = .3
-circle = .075 # r in meters not diameter ....   virtual beacon is .075
+time_in_cylinder = 1.5
+circle = .1 # r in meters not diameter ....   virtual beacon is .075
 rotation = 80
 speed = .25
 movement_collection_time = .01
-position_change = 1000  # set to high number so never change
+position_change = 10  # set to high number so never change
 light_off = 1000 ## set to high number so never change
+picture_fill = 'grass.png'
+
 
 save = not False
 
@@ -82,7 +84,7 @@ _ROOT = os.path.abspath(os.path.dirname(__file__))
 sounds_path = os.path.join(_ROOT, '..', 'assets', 'sounds')
 click_sound = os.path.join(sounds_path, 'click.wav')
 umgawa_sound = os.path.join(sounds_path, 'umgawa.wav')
-
+shake_sound = os.path.join(sounds_path, 'Shake Solid_163.wav')
 
 
 
@@ -93,7 +95,7 @@ def main():
     rat_rb = client.rigid_bodies['Rat']
 
 
-    noise = media.StaticSource(media.load(click_sound))
+    noise = media.StaticSource(media.load(shake_sound))
 
 
     # connect to feeder
@@ -124,7 +126,7 @@ def main():
     rat_camera = rc.Camera(projection=cube_mapping_projection, position=rat_head_position)
 
 
-    cylinder = load_textured_mesh(arena_reader, 'Cylinder',) #'dirt.png'
+    cylinder = load_textured_mesh(arena_reader, 'Cylinder',picture_fill) #'dirt.png'
     cylinder.parent = arena
     cylinder.uniforms['diffuse'] = 1., 1., 1.
     cylinder.uniforms['flat_shading'] = flat_shading
@@ -181,12 +183,16 @@ def main():
     with open(results_dir +"metadata_%s.txt" % time_stamp, "a+") as f_meta:
         f_meta.write("Recording started on : %s  \r\n" % strftime("%Y-%m-%d %H:%M:%S"))
         f_meta.write ("Computer time was : %s  \r\n" % computer_time)
-        f_meta.write ("exposure time : %s  \r\n" % exposure_time)
+        f_meta.write ("exposure_time_ITI : %s  \r\n" % exposure_time)
         f_meta.write ("time_in_cylinder : %s  \r\n" % time_in_cylinder)
         f_meta.write ("movement_collection_time : %s  \r\n" % movement_collection_time)
         f_meta.write ("animal_ID : %s  \r\n" % animal_ID)
-
-
+        f_meta.write ("background_color : %s%s%s  \r\n" % (background_color[0], background_color[1], background_color[2]))
+        f_meta.write ("circle : %s  \r\n" % circle)
+        f_meta.write ("position_change : %s  \r\n" % position_change)
+        f_meta.write ("light_off : %s  \r\n" % light_off)
+        f_meta.write ("Cylinder_color : %s  \r\n" % picture_fill)
+        f_meta.write ("rotation : %s  \r\n" % rotation)
 
     #To be able to use keyes
 
