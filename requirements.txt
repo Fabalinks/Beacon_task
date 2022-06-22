@@ -1,7 +1,7 @@
 certifi==2018.8.24
 future==0.16.0
 NatNetClient==0.8.3
-numpy==1.15.1
+numpy==1.22.0
 pyglet==1.3.2
 ratcave==0.8.0
 six==1.11.0
