@@ -1,4 +1,4 @@
-certifi==2018.8.24
+certifi==2022.12.7
 future==0.16.0
 NatNetClient==0.8.3
 numpy==1.15.1
